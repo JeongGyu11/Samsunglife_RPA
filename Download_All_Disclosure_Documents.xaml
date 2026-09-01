@@ -1,0 +1,500 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="Download_All_Disclosure_Documents" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property Name="in_MainBrowserElement" Type="InArgument(ui:UiElement)" />
+    <x:Property Name="in_LlmApiBase" Type="InArgument(x:String)" />
+    <x:Property Name="in_LlmApiKey" Type="InArgument(x:String)" />
+    <x:Property Name="in_LlmModel" Type="InArgument(x:String)" />
+    <x:Property Name="in_DownloadFolder" Type="InArgument(x:String)" />
+    <x:Property Name="in_MaxDocuments" Type="InArgument(x:Int32)" />
+    <x:Property Name="out_Success" Type="OutArgument(x:Boolean)" />
+    <x:Property Name="out_DownloadCount" Type="OutArgument(x:Int32)" />
+    <x:Property Name="out_ErrorMessage" Type="OutArgument(x:String)" />
+  </x:Members>
+  <VisualBasic.Settings>
+    <x:Null />
+  </VisualBasic.Settings>
+  <sap2010:WorkflowViewState.IdRef>Download_All_Disclosure_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>GlobalConstantsNamespace</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Newtonsoft.Json.Linq</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>Newtonsoft.Json</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomation.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomation.Activities.Runtime</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence DisplayName="모든 상품의 사업방법서와 보험약관 다운로드" sap:VirtualizedContainerService.HintSize="1168,6128" sap2010:WorkflowViewState.IdRef="Sequence_AllDocs_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:Boolean" Default="True" Name="continueLoop" />
+      <Variable x:TypeArguments="x:String" Name="rawJson" />
+      <Variable x:TypeArguments="x:String" Name="selectedId" />
+      <Variable x:TypeArguments="x:String" Name="stepError" />
+      <Variable x:TypeArguments="x:Boolean" Name="selectSuccess" />
+      <Variable x:TypeArguments="x:Int32" Name="statusCode" />
+      <Variable x:TypeArguments="x:String" Name="rawResponse" />
+      <Variable x:TypeArguments="x:String" Name="content" />
+      <Variable x:TypeArguments="x:String" Name="resolvedOperation" />
+      <Variable x:TypeArguments="x:String" Name="selectedValue" />
+      <Variable x:TypeArguments="ui:UiElement" Name="selectedElement" />
+      <Variable x:TypeArguments="x:Boolean" Name="resolveSuccess" />
+      <Variable x:TypeArguments="ui:UiElement" Name="viewerElement" />
+      <Variable x:TypeArguments="x:Boolean" Name="attachSuccess" />
+      <Variable x:TypeArguments="x:Boolean" Name="downloadSuccess" />
+      <Variable x:TypeArguments="x:String" Name="downloadedPath" />
+      <Variable x:TypeArguments="x:String" Name="viewerSelectedId" />
+      <Variable x:TypeArguments="x:String" Name="documentType" />
+      <Variable x:TypeArguments="x:String" Name="productNumber" />
+      <Variable x:TypeArguments="x:String" Name="productName" />
+      <Variable x:TypeArguments="x:String" Name="salePeriod" />
+      <Variable x:TypeArguments="x:String" Name="expectedName" />
+      <Variable x:TypeArguments="x:String" Name="finalSavedPath" />
+      <Variable x:TypeArguments="x:String" Name="markResult" />
+      <Variable x:TypeArguments="x:Int32" Default="1" Name="currentPage" />
+      <Variable x:TypeArguments="x:String" Default="2024" Name="currentYear" />
+      <Variable x:TypeArguments="x:Boolean" Default="False" Name="pageOnlyTest" />
+      <Variable x:TypeArguments="x:String" Name="nextYear" />
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <ui:MultipleAssign DisplayName="초기화" sap:VirtualizedContainerService.HintSize="640,211" sap2010:WorkflowViewState.IdRef="MA_AllDocs_1">
+      <ui:MultipleAssign.AssignOperations>
+        <scg:List x:TypeArguments="ui:AssignOperation" Capacity="4">
+          <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AO_AllDocs_1">
+            <ui:AssignOperation.To>
+              <OutArgument x:TypeArguments="x:Boolean">[out_Success]</OutArgument>
+            </ui:AssignOperation.To>
+            <ui:AssignOperation.Value>
+              <InArgument x:TypeArguments="x:Boolean">False</InArgument>
+            </ui:AssignOperation.Value>
+          </ui:AssignOperation>
+          <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AO_AllDocs_2">
+            <ui:AssignOperation.To>
+              <OutArgument x:TypeArguments="x:Int32">[out_DownloadCount]</OutArgument>
+            </ui:AssignOperation.To>
+            <ui:AssignOperation.Value>
+              <InArgument x:TypeArguments="x:Int32">0</InArgument>
+            </ui:AssignOperation.Value>
+          </ui:AssignOperation>
+          <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AO_AllDocs_3">
+            <ui:AssignOperation.To>
+              <OutArgument x:TypeArguments="x:String">[out_ErrorMessage]</OutArgument>
+            </ui:AssignOperation.To>
+            <ui:AssignOperation.Value>
+              <InArgument x:TypeArguments="x:String">[String.Empty]</InArgument>
+            </ui:AssignOperation.Value>
+          </ui:AssignOperation>
+        </scg:List>
+      </ui:MultipleAssign.AssignOperations>
+    </ui:MultipleAssign>
+    <TryCatch DisplayName="전체 다운로드" sap:VirtualizedContainerService.HintSize="640,5894" sap2010:WorkflowViewState.IdRef="TC_AllDocs_1">
+      <TryCatch.Try>
+        <Sequence DisplayName="시도" sap:VirtualizedContainerService.HintSize="638,5722" sap2010:WorkflowViewState.IdRef="Seq_AllDocsTry_1">
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <If Condition="[in_MainBrowserElement Is Nothing]" sap:VirtualizedContainerService.HintSize="604,342" sap2010:WorkflowViewState.IdRef="If_MainBrowser_1">
+            <If.Then>
+              <Throw Exception="[New Exception(&quot;상품 목록 브라우저 UiElement가 없습니다.&quot;)]" sap:VirtualizedContainerService.HintSize="450,91" sap2010:WorkflowViewState.IdRef="Throw_MainBrowser_1" />
+            </If.Then>
+          </If>
+          <While DisplayName="문서 및 페이지 반복" sap:VirtualizedContainerService.HintSize="604,4257" sap2010:WorkflowViewState.IdRef="While_AllDocs_1" Condition="[continueLoop AndAlso (in_MaxDocuments &lt;= 0 OrElse out_DownloadCount &lt; in_MaxDocuments)]">
+            <Sequence sap:VirtualizedContainerService.HintSize="558,4065" sap2010:WorkflowViewState.IdRef="Seq_AllDocsLoop_1">
+              <sap:WorkflowViewStateService.ViewState>
+                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                  <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                </scg:Dictionary>
+              </sap:WorkflowViewStateService.ViewState>
+              <ui:InjectJsScript DisplayName="미처리 문서 후보 수집" sap:VirtualizedContainerService.HintSize="524,168" sap2010:WorkflowViewState.IdRef="Inject_CollectDocs_1" InputParameter="[&quot;{&quot;&quot;action&quot;&quot;:&quot;&quot;COLLECT&quot;&quot;,&quot;&quot;page_only_test&quot;&quot;:&quot; &amp; pageOnlyTest.ToString().ToLowerInvariant() &amp; &quot;,&quot;&quot;start_row&quot;&quot;:0,&quot;&quot;current_page&quot;&quot;:&quot; &amp; currentPage.ToString() &amp; &quot;}&quot;]" ScriptCode="[Path.Combine(Environment.CurrentDirectory, &quot;Scripts&quot;, &quot;collect_disclosure_download_candidates.js&quot;)]">
+                <ui:InjectJsScript.ScriptOutput>
+                  <OutArgument x:TypeArguments="x:String">[rawJson]</OutArgument>
+                </ui:InjectJsScript.ScriptOutput>
+                <ui:InjectJsScript.Target>
+                  <ui:Target ClippingRegion="{x:Null}" Selector="{x:Null}" Element="[in_MainBrowserElement]" Id="f05d1311-3552-4aca-b6a5-95c2cc1d21ea" TimeoutMS="10000" WaitForReady="COMPLETE" />
+                </ui:InjectJsScript.Target>
+              </ui:InjectJsScript>
+              <ui:LogMessage DisplayName="문서 후보 수집 결과 로그" sap:VirtualizedContainerService.HintSize="524,175" sap2010:WorkflowViewState.IdRef="Log_DisclosureCandidates_1" Level="Trace" Message="[&quot;Disclosure Candidate Result: &quot; &amp; If(rawJson, String.Empty)]" />
+              <If Condition="[String.IsNullOrWhiteSpace(rawJson) OrElse Not rawJson.Replace(&quot; &quot;, String.Empty).Contains(&quot;&quot;&quot;success&quot;&quot;:true&quot;)]" DisplayName="문서 후보 수집 성공 검증" sap:VirtualizedContainerService.HintSize="524,342" sap2010:WorkflowViewState.IdRef="If_DisclosureCollectSuccess_1">
+                <If.Then>
+                  <Throw Exception="[New Exception(&quot;상품 문서 후보 수집 실패: &quot; &amp; If(rawJson, String.Empty))]" sap:VirtualizedContainerService.HintSize="450,91" sap2010:WorkflowViewState.IdRef="Throw_DisclosureCollectFailed_1" />
+                </If.Then>
+              </If>
+              <If Condition="[Not String.IsNullOrWhiteSpace(rawJson) AndAlso rawJson.Replace(&quot; &quot;, String.Empty).Contains(&quot;&quot;&quot;is_last_page&quot;&quot;:true&quot;)]" DisplayName="마지막 페이지·마지막 상품 자동 판정" sap:VirtualizedContainerService.HintSize="524,3320" sap2010:WorkflowViewState.IdRef="If_NoDocs_1">
+                <If.Then>
+                  <If Condition="[False]" DisplayName="자동 다음 연도 전환 비활성화" sap2010:WorkflowViewState.IdRef="If_AdvanceTo2025_1">
+                    <If.Then>
+                      <Sequence DisplayName="판매연도 다음 연도 전환" sap2010:WorkflowViewState.IdRef="Sequence_AdvanceTo2025_1">
+                        <Assign DisplayName="현재 연도 + 1 계산" sap2010:WorkflowViewState.IdRef="Assign_CalculateNextYear_1">
+                          <Assign.To><OutArgument x:TypeArguments="x:String">[nextYear]</OutArgument></Assign.To>
+                          <Assign.Value><InArgument x:TypeArguments="x:String">[(CInt(currentYear) + 1).ToString()]</InArgument></Assign.Value>
+                        </Assign>
+                        <ui:InjectJsScript DisplayName="조회설정 열기" sap2010:WorkflowViewState.IdRef="Inject_OpenYearFilter_1" InputParameter="[&quot;{&quot;&quot;action&quot;&quot;:&quot;&quot;OPEN_FILTER&quot;&quot;,&quot;&quot;year&quot;&quot;:&quot;&quot;&quot; &amp; nextYear &amp; &quot;&quot;&quot;}&quot;]" ScriptCode="[Path.Combine(Environment.CurrentDirectory, &quot;Scripts&quot;, &quot;change_samsunglife_disclosure_year.js&quot;)]">
+                          <ui:InjectJsScript.ScriptOutput><OutArgument x:TypeArguments="x:String">[rawJson]</OutArgument></ui:InjectJsScript.ScriptOutput>
+                          <ui:InjectJsScript.Target><ui:Target ClippingRegion="{x:Null}" Selector="{x:Null}" Element="[in_MainBrowserElement]" Id="36615693-9dc2-48e0-a040-d10920489856" TimeoutMS="10000" WaitForReady="COMPLETE" /></ui:InjectJsScript.Target>
+                        </ui:InjectJsScript>
+                        <Assign DisplayName="조회설정 요소 ID 지정" sap2010:WorkflowViewState.IdRef="Assign_FilterElementId_1"><Assign.To><OutArgument x:TypeArguments="x:String">[selectedId]</OutArgument></Assign.To><Assign.Value><InArgument x:TypeArguments="x:String">E700001</InArgument></Assign.Value></Assign>
+                        <ui:InvokeWorkflowFile DisplayName="조회설정 실제 요소 해석" sap2010:WorkflowViewState.IdRef="Invoke_ResolveFilter_1" UnSafe="False" WorkflowFileName="Resolve_Selected_Element.xaml"><ui:InvokeWorkflowFile.Arguments><OutArgument x:TypeArguments="x:String" x:Key="out_ErrorMessage">[stepError]</OutArgument><OutArgument x:TypeArguments="x:Boolean" x:Key="out_ResolveSuccess">[resolveSuccess]</OutArgument><OutArgument x:TypeArguments="ui:UiElement" x:Key="out_SelectedUiElement">[selectedElement]</OutArgument><InArgument x:TypeArguments="x:String" x:Key="in_CollectionMethod">JS</InArgument><InArgument x:TypeArguments="ui:UiElement" x:Key="in_TargetElement">[in_MainBrowserElement]</InArgument><InArgument x:TypeArguments="scg:Dictionary(x:String, ui:UiElement)" x:Key="in_ElementMap">[Nothing]</InArgument><InArgument x:TypeArguments="x:String" x:Key="in_SelectedElementId">[selectedId]</InArgument></ui:InvokeWorkflowFile.Arguments></ui:InvokeWorkflowFile>
+                        <ui:Click AlterIfDisabled="True" ClickType="CLICK_SINGLE" DelayMS="500" DisplayName="UiPath 조회설정 클릭" sap2010:WorkflowViewState.IdRef="Click_FilterPhysical_1" KeyModifiers="None" MouseButton="BTN_LEFT" SimulateClick="False"><ui:Click.Target><ui:Target Element="[selectedElement]" Id="a56ac2f8-8602-456b-9954-15a7dfad9b11" TimeoutMS="10000" WaitForReady="INTERACTIVE" /></ui:Click.Target></ui:Click>
+                        <Delay Duration="00:00:01" sap2010:WorkflowViewState.IdRef="Delay_OpenYearFilter_1" />
+                        <ui:InjectJsScript DisplayName="판매연도 목록 열기" sap2010:WorkflowViewState.IdRef="Inject_OpenYearList_1" InputParameter="[&quot;{&quot;&quot;action&quot;&quot;:&quot;&quot;OPEN_YEAR&quot;&quot;,&quot;&quot;year&quot;&quot;:&quot;&quot;&quot; &amp; nextYear &amp; &quot;&quot;&quot;}&quot;]" ScriptCode="[Path.Combine(Environment.CurrentDirectory, &quot;Scripts&quot;, &quot;change_samsunglife_disclosure_year.js&quot;)]">
+                          <ui:InjectJsScript.ScriptOutput><OutArgument x:TypeArguments="x:String">[rawJson]</OutArgument></ui:InjectJsScript.ScriptOutput>
+                          <ui:InjectJsScript.Target><ui:Target ClippingRegion="{x:Null}" Selector="{x:Null}" Element="[in_MainBrowserElement]" Id="3c00d75f-69cc-4281-a6e8-b48e177d325d" TimeoutMS="10000" WaitForReady="COMPLETE" /></ui:InjectJsScript.Target>
+                        </ui:InjectJsScript>
+                        <Assign DisplayName="판매연도 요소 ID 지정" sap2010:WorkflowViewState.IdRef="Assign_YearElementId_1"><Assign.To><OutArgument x:TypeArguments="x:String">[selectedId]</OutArgument></Assign.To><Assign.Value><InArgument x:TypeArguments="x:String">E700002</InArgument></Assign.Value></Assign>
+                        <ui:InvokeWorkflowFile DisplayName="판매연도 실제 요소 해석" sap2010:WorkflowViewState.IdRef="Invoke_ResolveYear_1" UnSafe="False" WorkflowFileName="Resolve_Selected_Element.xaml"><ui:InvokeWorkflowFile.Arguments><OutArgument x:TypeArguments="x:String" x:Key="out_ErrorMessage">[stepError]</OutArgument><OutArgument x:TypeArguments="x:Boolean" x:Key="out_ResolveSuccess">[resolveSuccess]</OutArgument><OutArgument x:TypeArguments="ui:UiElement" x:Key="out_SelectedUiElement">[selectedElement]</OutArgument><InArgument x:TypeArguments="x:String" x:Key="in_CollectionMethod">JS</InArgument><InArgument x:TypeArguments="ui:UiElement" x:Key="in_TargetElement">[in_MainBrowserElement]</InArgument><InArgument x:TypeArguments="scg:Dictionary(x:String, ui:UiElement)" x:Key="in_ElementMap">[Nothing]</InArgument><InArgument x:TypeArguments="x:String" x:Key="in_SelectedElementId">[selectedId]</InArgument></ui:InvokeWorkflowFile.Arguments></ui:InvokeWorkflowFile>
+                        <ui:Click AlterIfDisabled="True" ClickType="CLICK_SINGLE" DelayMS="500" DisplayName="UiPath 판매연도 클릭" sap2010:WorkflowViewState.IdRef="Click_YearPhysical_1" KeyModifiers="None" MouseButton="BTN_LEFT" SimulateClick="False"><ui:Click.Target><ui:Target Element="[selectedElement]" Id="a020ed25-7b81-48a0-b3ac-edeb0e1a21e4" TimeoutMS="10000" WaitForReady="INTERACTIVE" /></ui:Click.Target></ui:Click>
+                        <Delay Duration="00:00:01" sap2010:WorkflowViewState.IdRef="Delay_OpenYearList_1" />
+                        <ui:InjectJsScript DisplayName="다음 연도 선택" sap2010:WorkflowViewState.IdRef="Inject_Select2025_1" InputParameter="[&quot;{&quot;&quot;action&quot;&quot;:&quot;&quot;SELECT_YEAR&quot;&quot;,&quot;&quot;year&quot;&quot;:&quot;&quot;&quot; &amp; nextYear &amp; &quot;&quot;&quot;}&quot;]" ScriptCode="[Path.Combine(Environment.CurrentDirectory, &quot;Scripts&quot;, &quot;change_samsunglife_disclosure_year.js&quot;)]">
+                          <ui:InjectJsScript.ScriptOutput><OutArgument x:TypeArguments="x:String">[rawJson]</OutArgument></ui:InjectJsScript.ScriptOutput>
+                          <ui:InjectJsScript.Target><ui:Target ClippingRegion="{x:Null}" Selector="{x:Null}" Element="[in_MainBrowserElement]" Id="9da7272d-d2d4-43b6-a06e-aa97e63a8fc7" TimeoutMS="10000" WaitForReady="COMPLETE" /></ui:InjectJsScript.Target>
+                        </ui:InjectJsScript>
+                        <Assign DisplayName="다음 연도 요소 ID 지정" sap2010:WorkflowViewState.IdRef="Assign_NextYearElementId_1"><Assign.To><OutArgument x:TypeArguments="x:String">[selectedId]</OutArgument></Assign.To><Assign.Value><InArgument x:TypeArguments="x:String">E700003</InArgument></Assign.Value></Assign>
+                        <ui:InvokeWorkflowFile DisplayName="다음 연도 실제 요소 해석" sap2010:WorkflowViewState.IdRef="Invoke_ResolveNextYear_1" UnSafe="False" WorkflowFileName="Resolve_Selected_Element.xaml"><ui:InvokeWorkflowFile.Arguments><OutArgument x:TypeArguments="x:String" x:Key="out_ErrorMessage">[stepError]</OutArgument><OutArgument x:TypeArguments="x:Boolean" x:Key="out_ResolveSuccess">[resolveSuccess]</OutArgument><OutArgument x:TypeArguments="ui:UiElement" x:Key="out_SelectedUiElement">[selectedElement]</OutArgument><InArgument x:TypeArguments="x:String" x:Key="in_CollectionMethod">JS</InArgument><InArgument x:TypeArguments="ui:UiElement" x:Key="in_TargetElement">[in_MainBrowserElement]</InArgument><InArgument x:TypeArguments="scg:Dictionary(x:String, ui:UiElement)" x:Key="in_ElementMap">[Nothing]</InArgument><InArgument x:TypeArguments="x:String" x:Key="in_SelectedElementId">[selectedId]</InArgument></ui:InvokeWorkflowFile.Arguments></ui:InvokeWorkflowFile>
+                        <ui:Click AlterIfDisabled="True" ClickType="CLICK_SINGLE" DelayMS="500" DisplayName="UiPath 다음 연도 클릭" sap2010:WorkflowViewState.IdRef="Click_NextYearPhysical_1" KeyModifiers="None" MouseButton="BTN_LEFT" SimulateClick="False"><ui:Click.Target><ui:Target Element="[selectedElement]" Id="9df27dd5-d560-4348-880c-faa5755e986b" TimeoutMS="10000" WaitForReady="INTERACTIVE" /></ui:Click.Target></ui:Click>
+                        <Delay Duration="00:00:01" sap2010:WorkflowViewState.IdRef="Delay_Select2025_1" />
+                        <ui:InjectJsScript DisplayName="다음 연도 적용 확인" sap2010:WorkflowViewState.IdRef="Inject_Confirm2025_1" InputParameter="[&quot;{&quot;&quot;action&quot;&quot;:&quot;&quot;CONFIRM&quot;&quot;,&quot;&quot;year&quot;&quot;:&quot;&quot;&quot; &amp; nextYear &amp; &quot;&quot;&quot;}&quot;]" ScriptCode="[Path.Combine(Environment.CurrentDirectory, &quot;Scripts&quot;, &quot;change_samsunglife_disclosure_year.js&quot;)]">
+                          <ui:InjectJsScript.ScriptOutput><OutArgument x:TypeArguments="x:String">[rawJson]</OutArgument></ui:InjectJsScript.ScriptOutput>
+                          <ui:InjectJsScript.Target><ui:Target ClippingRegion="{x:Null}" Selector="{x:Null}" Element="[in_MainBrowserElement]" Id="76674644-aa38-41cc-b31d-6da2bb6dfdcc" TimeoutMS="10000" WaitForReady="COMPLETE" /></ui:InjectJsScript.Target>
+                        </ui:InjectJsScript>
+                        <Assign DisplayName="확인 요소 ID 지정" sap2010:WorkflowViewState.IdRef="Assign_ConfirmElementId_1"><Assign.To><OutArgument x:TypeArguments="x:String">[selectedId]</OutArgument></Assign.To><Assign.Value><InArgument x:TypeArguments="x:String">E700004</InArgument></Assign.Value></Assign>
+                        <ui:InvokeWorkflowFile DisplayName="확인 실제 요소 해석" sap2010:WorkflowViewState.IdRef="Invoke_ResolveConfirm_1" UnSafe="False" WorkflowFileName="Resolve_Selected_Element.xaml"><ui:InvokeWorkflowFile.Arguments><OutArgument x:TypeArguments="x:String" x:Key="out_ErrorMessage">[stepError]</OutArgument><OutArgument x:TypeArguments="x:Boolean" x:Key="out_ResolveSuccess">[resolveSuccess]</OutArgument><OutArgument x:TypeArguments="ui:UiElement" x:Key="out_SelectedUiElement">[selectedElement]</OutArgument><InArgument x:TypeArguments="x:String" x:Key="in_CollectionMethod">JS</InArgument><InArgument x:TypeArguments="ui:UiElement" x:Key="in_TargetElement">[in_MainBrowserElement]</InArgument><InArgument x:TypeArguments="scg:Dictionary(x:String, ui:UiElement)" x:Key="in_ElementMap">[Nothing]</InArgument><InArgument x:TypeArguments="x:String" x:Key="in_SelectedElementId">[selectedId]</InArgument></ui:InvokeWorkflowFile.Arguments></ui:InvokeWorkflowFile>
+                        <ui:Click AlterIfDisabled="True" ClickType="CLICK_SINGLE" DelayMS="500" DisplayName="UiPath 확인 클릭" sap2010:WorkflowViewState.IdRef="Click_ConfirmPhysical_1" KeyModifiers="None" MouseButton="BTN_LEFT" SimulateClick="False"><ui:Click.Target><ui:Target Element="[selectedElement]" Id="9bbc2454-fc0a-49e5-994b-cce75dfb292f" TimeoutMS="10000" WaitForReady="INTERACTIVE" /></ui:Click.Target></ui:Click>
+                        <Delay Duration="00:00:03" sap2010:WorkflowViewState.IdRef="Delay_Confirm2025_1" />
+                        <ui:InjectJsScript DisplayName="다음 연도 목록 적용 확인" sap2010:WorkflowViewState.IdRef="Inject_Verify2025_1" InputParameter="[&quot;{&quot;&quot;action&quot;&quot;:&quot;&quot;VERIFY_YEAR&quot;&quot;,&quot;&quot;year&quot;&quot;:&quot;&quot;&quot; &amp; nextYear &amp; &quot;&quot;&quot;}&quot;]" ScriptCode="[Path.Combine(Environment.CurrentDirectory, &quot;Scripts&quot;, &quot;change_samsunglife_disclosure_year.js&quot;)]">
+                          <ui:InjectJsScript.ScriptOutput><OutArgument x:TypeArguments="x:String">[rawJson]</OutArgument></ui:InjectJsScript.ScriptOutput>
+                          <ui:InjectJsScript.Target><ui:Target ClippingRegion="{x:Null}" Selector="{x:Null}" Element="[in_MainBrowserElement]" Id="4a93e483-caad-421a-89b0-c4d5fcfd35c9" TimeoutMS="10000" WaitForReady="COMPLETE" /></ui:InjectJsScript.Target>
+                        </ui:InjectJsScript>
+                        <If Condition="[String.IsNullOrWhiteSpace(rawJson) OrElse Not rawJson.Replace(&quot; &quot;, String.Empty).Contains(&quot;&quot;&quot;success&quot;&quot;:true&quot;)]" DisplayName="2025년 적용 결과 검증" sap2010:WorkflowViewState.IdRef="If_Validate2025Transition_1">
+                          <If.Then>
+                            <Throw Exception="[New Exception(nextYear &amp; &quot;년 판매연도 전환에 실패했습니다: &quot; &amp; If(rawJson, String.Empty))]" sap2010:WorkflowViewState.IdRef="Throw_Validate2025Transition_1" />
+                          </If.Then>
+                        </If>
+                        <ui:MultipleAssign DisplayName="2025 처리 상태 초기화" sap2010:WorkflowViewState.IdRef="MultipleAssign_Advance2025_1">
+                          <ui:MultipleAssign.AssignOperations>
+                            <scg:List x:TypeArguments="ui:AssignOperation" Capacity="2">
+                              <ui:AssignOperation><ui:AssignOperation.To><OutArgument x:TypeArguments="x:String">[currentYear]</OutArgument></ui:AssignOperation.To><ui:AssignOperation.Value><InArgument x:TypeArguments="x:String">[nextYear]</InArgument></ui:AssignOperation.Value></ui:AssignOperation>
+                              <ui:AssignOperation><ui:AssignOperation.To><OutArgument x:TypeArguments="x:Int32">[currentPage]</OutArgument></ui:AssignOperation.To><ui:AssignOperation.Value><InArgument x:TypeArguments="x:Int32">1</InArgument></ui:AssignOperation.Value></ui:AssignOperation>
+                            </scg:List>
+                          </ui:MultipleAssign.AssignOperations>
+                        </ui:MultipleAssign>
+                         <ui:LogMessage DisplayName="다음 연도 전환 결과" sap2010:WorkflowViewState.IdRef="Log_Advance2025_1" Level="Info" Message="[&quot;연도 전환 완료: &quot; &amp; (CInt(currentYear) - 1).ToString() &amp; &quot; → &quot; &amp; currentYear &amp; &quot;, 1페이지. Result=&quot; &amp; If(rawJson, String.Empty)]" />
+                         <If Condition="[pageOnlyTest]" DisplayName="페이지 이동 테스트 전환 후 종료" sap2010:WorkflowViewState.IdRef="If_StopAfter2025TransitionTest_1">
+                           <If.Then>
+                             <Assign DisplayName="2025 전환 확인 후 테스트 종료" sap2010:WorkflowViewState.IdRef="Assign_StopAfter2025TransitionTest_1">
+                               <Assign.To><OutArgument x:TypeArguments="x:Boolean">[continueLoop]</OutArgument></Assign.To>
+                               <Assign.Value><InArgument x:TypeArguments="x:Boolean">False</InArgument></Assign.Value>
+                             </Assign>
+                           </If.Then>
+                         </If>
+                      </Sequence>
+                    </If.Then>
+                    <If.Else>
+                      <Assign DisplayName="전체 연도 처리 종료" sap2010:WorkflowViewState.IdRef="Assign_StopDocs_1">
+                        <Assign.To><OutArgument x:TypeArguments="x:Boolean">[continueLoop]</OutArgument></Assign.To>
+                        <Assign.Value><InArgument x:TypeArguments="x:Boolean">False</InArgument></Assign.Value>
+                      </Assign>
+                    </If.Else>
+                  </If>
+                </If.Then>
+                <If.Else>
+                  <Sequence DisplayName="Else" sap:VirtualizedContainerService.HintSize="522,3025" sap2010:WorkflowViewState.IdRef="Seq_ProcessCandidate_1">
+                    <sap:WorkflowViewStateService.ViewState>
+                      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                      </scg:Dictionary>
+                    </sap:WorkflowViewStateService.ViewState>
+                    <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="LLM 문서 또는 다음 페이지 선택" sap:VirtualizedContainerService.HintSize="488,177" sap2010:WorkflowViewState.IdRef="Invoke_SelectDoc_1" UnSafe="False" WorkflowFileName="Select_UI_Element.xaml">
+                      <ui:InvokeWorkflowFile.Arguments>
+                        <OutArgument x:TypeArguments="x:String" x:Key="out_ErrorMessage">[stepError]</OutArgument>
+                        <OutArgument x:TypeArguments="x:Boolean" x:Key="out_SelectSuccess">[selectSuccess]</OutArgument>
+                        <OutArgument x:TypeArguments="x:Int32" x:Key="out_LlmStatusCode">[statusCode]</OutArgument>
+                        <OutArgument x:TypeArguments="x:String" x:Key="out_LlmRawResponse">[rawResponse]</OutArgument>
+                        <OutArgument x:TypeArguments="x:String" x:Key="out_LlmContent">[content]</OutArgument>
+                        <OutArgument x:TypeArguments="x:String" x:Key="out_SelectedElementId">[selectedId]</OutArgument>
+                        <OutArgument x:TypeArguments="x:String" x:Key="out_ResolvedOperation">[resolvedOperation]</OutArgument>
+                        <OutArgument x:TypeArguments="x:String" x:Key="out_SelectedValue">[selectedValue]</OutArgument>
+                        <InArgument x:TypeArguments="x:String" x:Key="in_LlmApiKey">[in_LlmApiKey]</InArgument>
+                        <InArgument x:TypeArguments="x:String" x:Key="in_LlmModel">[in_LlmModel]</InArgument>
+                        <InArgument x:TypeArguments="x:String" x:Key="in_LlmApiBase">[in_LlmApiBase]</InArgument>
+                        <InArgument x:TypeArguments="x:String" x:Key="in_ValueKind">NONE</InArgument>
+                        <InArgument x:TypeArguments="x:String" x:Key="in_InputText">[String.Empty]</InArgument>
+                        <InArgument x:TypeArguments="x:String" x:Key="in_Operation">DOWNLOAD</InArgument>
+                        <InArgument x:TypeArguments="x:String" x:Key="in_Objective">후보 배열은 상품 행 순서이며 각 상품마다 상품요약서가 있으면 상품요약서, 사업방법서, 보험약관 순서이고 상품요약서가 없으면 사업방법서, 보험약관 순서로 정렬되어 있다. 반드시 candidates 배열의 첫 번째 항목(candidates[0])만 선택한다. 첫 번째 항목이 문서이면 해당 element_id를 선택하고, 첫 번째 항목이 NEXT_PAGE이면 NEXT_PAGE를 선택한다. 뒤쪽 후보를 우선하지 않는다.</InArgument>
+                        <InArgument x:TypeArguments="x:String" x:Key="in_ActionKey">DISCLOSURE_NEXT_ACTION</InArgument>
+                        <InArgument x:TypeArguments="x:String" x:Key="in_CandidateJson">[rawJson]</InArgument>
+                      </ui:InvokeWorkflowFile.Arguments>
+                    </ui:InvokeWorkflowFile>
+                    <If Condition="[Not selectSuccess OrElse String.IsNullOrWhiteSpace(selectedId)]" sap:VirtualizedContainerService.HintSize="488,342" sap2010:WorkflowViewState.IdRef="If_SelectDocFail_1">
+                      <If.Then>
+                        <Throw Exception="[New Exception(&quot;LLM 문서 선택 실패: &quot; &amp; stepError)]" sap:VirtualizedContainerService.HintSize="450,91" sap2010:WorkflowViewState.IdRef="Throw_SelectDocFail_1" />
+                      </If.Then>
+                    </If>
+                    <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="선택 링크 해석" sap:VirtualizedContainerService.HintSize="488,177" sap2010:WorkflowViewState.IdRef="Invoke_ResolveDoc_1" UnSafe="False" WorkflowFileName="Resolve_Selected_Element.xaml">
+                      <ui:InvokeWorkflowFile.Arguments>
+                        <OutArgument x:TypeArguments="x:String" x:Key="out_ErrorMessage">[stepError]</OutArgument>
+                        <OutArgument x:TypeArguments="x:Boolean" x:Key="out_ResolveSuccess">[resolveSuccess]</OutArgument>
+                        <OutArgument x:TypeArguments="ui:UiElement" x:Key="out_SelectedUiElement">[selectedElement]</OutArgument>
+                        <InArgument x:TypeArguments="x:String" x:Key="in_CollectionMethod">JS</InArgument>
+                        <InArgument x:TypeArguments="ui:UiElement" x:Key="in_TargetElement">[in_MainBrowserElement]</InArgument>
+                        <InArgument x:TypeArguments="scg:Dictionary(x:String, ui:UiElement)" x:Key="in_ElementMap">[Nothing]</InArgument>
+                        <InArgument x:TypeArguments="x:String" x:Key="in_SelectedElementId">[selectedId]</InArgument>
+                      </ui:InvokeWorkflowFile.Arguments>
+                    </ui:InvokeWorkflowFile>
+                    <If Condition="[Not resolveSuccess OrElse selectedElement Is Nothing]" sap:VirtualizedContainerService.HintSize="488,342" sap2010:WorkflowViewState.IdRef="If_ResolveDocFail_1">
+                      <If.Then>
+                        <Throw Exception="[New Exception(&quot;문서 링크 해석 실패: &quot; &amp; stepError)]" sap:VirtualizedContainerService.HintSize="450,91" sap2010:WorkflowViewState.IdRef="Throw_ResolveDocFail_1" />
+                      </If.Then>
+                    </If>
+                    <ui:Click DelayBefore="{x:Null}" SendWindowMessages="{x:Null}" AlterIfDisabled="True" ClickType="CLICK_SINGLE" DelayMS="500" DisplayName="UiPath로 선택 링크 클릭" sap:VirtualizedContainerService.HintSize="488,119" sap2010:WorkflowViewState.IdRef="Click_SelectedDoc_1" KeyModifiers="None" MouseButton="BTN_LEFT" SimulateClick="False">
+                      <ui:Click.CursorPosition>
+                        <ui:CursorPosition Position="Center">
+                          <ui:CursorPosition.OffsetX>
+                            <InArgument x:TypeArguments="x:Int32" />
+                          </ui:CursorPosition.OffsetX>
+                          <ui:CursorPosition.OffsetY>
+                            <InArgument x:TypeArguments="x:Int32" />
+                          </ui:CursorPosition.OffsetY>
+                        </ui:CursorPosition>
+                      </ui:Click.CursorPosition>
+                      <ui:Click.Target>
+                        <ui:Target ClippingRegion="{x:Null}" Selector="{x:Null}" Element="[selectedElement]" Id="8c86365d-d7f8-43f5-9d37-a13954dfa535" TimeoutMS="10000" WaitForReady="INTERACTIVE" />
+                      </ui:Click.Target>
+                    </ui:Click>
+                    <If Condition="[selectedId = &quot;E999999&quot;]" sap:VirtualizedContainerService.HintSize="488,1808" sap2010:WorkflowViewState.IdRef="If_NextPage_1">
+                      <If.Then>
+                        <Sequence DisplayName="다음 페이지 이동 완료 처리" sap:VirtualizedContainerService.HintSize="486,931" sap2010:WorkflowViewState.IdRef="Sequence_NextPage_1">
+                          <sap:WorkflowViewStateService.ViewState>
+                            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                            </scg:Dictionary>
+                          </sap:WorkflowViewStateService.ViewState>
+                           <ui:InjectJsScript DisplayName="다음 페이지 이동 확정 보정" sap2010:WorkflowViewState.IdRef="Inject_EnsureNextPage_1" InputParameter="[&quot;{&quot;&quot;action&quot;&quot;:&quot;&quot;NAVIGATE_PAGE&quot;&quot;,&quot;&quot;page&quot;&quot;:&quot; &amp; (currentPage + 1).ToString() &amp; &quot;}&quot;]" ScriptCode="[Path.Combine(Environment.CurrentDirectory, &quot;Scripts&quot;, &quot;collect_disclosure_download_candidates.js&quot;)]">
+                             <ui:InjectJsScript.ScriptOutput><OutArgument x:TypeArguments="x:String">[rawJson]</OutArgument></ui:InjectJsScript.ScriptOutput>
+                             <ui:InjectJsScript.Target><ui:Target ClippingRegion="{x:Null}" Selector="{x:Null}" Element="[in_MainBrowserElement]" Id="b6cd6b83-d299-4496-94c0-a87d770615a5" TimeoutMS="10000" WaitForReady="COMPLETE" /></ui:InjectJsScript.Target>
+                           </ui:InjectJsScript>
+                           <Delay Duration="00:00:03" sap:VirtualizedContainerService.HintSize="452,123" sap2010:WorkflowViewState.IdRef="Delay_NextPage_1" />
+                          <ui:InjectJsScript DisplayName="실제 다음 페이지 전환 확인" sap2010:WorkflowViewState.IdRef="Inject_VerifyActualNextPage_1" InputParameter="[&quot;{&quot;&quot;action&quot;&quot;:&quot;&quot;VERIFY_PAGE_CHANGE&quot;&quot;,&quot;&quot;expected_page&quot;&quot;:&quot; &amp; (currentPage + 1).ToString() &amp; &quot;}&quot;]" ScriptCode="[Path.Combine(Environment.CurrentDirectory, &quot;Scripts&quot;, &quot;collect_disclosure_download_candidates.js&quot;)]">
+                            <ui:InjectJsScript.ScriptOutput><OutArgument x:TypeArguments="x:String">[rawJson]</OutArgument></ui:InjectJsScript.ScriptOutput>
+                            <ui:InjectJsScript.Target><ui:Target ClippingRegion="{x:Null}" Selector="{x:Null}" Element="[in_MainBrowserElement]" Id="dd303a80-a3f2-4d46-90c3-88d3d34d6f80" TimeoutMS="10000" WaitForReady="COMPLETE" /></ui:InjectJsScript.Target>
+                          </ui:InjectJsScript>
+                          <If Condition="[String.IsNullOrWhiteSpace(rawJson) OrElse Not rawJson.Replace(&quot; &quot;, String.Empty).Contains(&quot;&quot;&quot;success&quot;&quot;:true&quot;)]" DisplayName="다음 페이지 무변화 시 연도 완료 처리" sap2010:WorkflowViewState.IdRef="If_NoActualPageChange_1">
+                            <If.Then>
+                              <ui:InjectJsScript DisplayName="현재 연도 마지막 페이지 강제 표시" sap2010:WorkflowViewState.IdRef="Inject_ForceYearComplete_1" InputParameter="[&quot;{&quot;&quot;action&quot;&quot;:&quot;&quot;FORCE_YEAR_COMPLETE&quot;&quot;}&quot;]" ScriptCode="[Path.Combine(Environment.CurrentDirectory, &quot;Scripts&quot;, &quot;collect_disclosure_download_candidates.js&quot;)]">
+                                <ui:InjectJsScript.ScriptOutput><OutArgument x:TypeArguments="x:String">[rawJson]</OutArgument></ui:InjectJsScript.ScriptOutput>
+                                <ui:InjectJsScript.Target><ui:Target ClippingRegion="{x:Null}" Selector="{x:Null}" Element="[in_MainBrowserElement]" Id="3f821b1c-d93a-46e3-be09-9db6f5c922e4" TimeoutMS="10000" WaitForReady="COMPLETE" /></ui:InjectJsScript.Target>
+                              </ui:InjectJsScript>
+                            </If.Then>
+                          </If>
+                          <Assign DisplayName="현재 페이지 증가" sap:VirtualizedContainerService.HintSize="452,175" sap2010:WorkflowViewState.IdRef="Assign_CurrentPage_1">
+                            <Assign.To>
+                              <OutArgument x:TypeArguments="x:Int32">[currentPage]</OutArgument>
+                            </Assign.To>
+                            <Assign.Value>
+                              <InArgument x:TypeArguments="x:Int32">[currentPage + 1]</InArgument>
+                            </Assign.Value>
+                          </Assign>
+                          <If Condition="[currentPage &gt; 1 AndAlso currentPage Mod 10 = 1]" DisplayName="10페이지 묶음 전환 보정" sap:VirtualizedContainerService.HintSize="452,573" sap2010:WorkflowViewState.IdRef="If_PageBlockCorrection_1">
+                            <If.Then>
+                              <Sequence DisplayName="다음 묶음 첫 페이지 선택" sap:VirtualizedContainerService.HintSize="450,423" sap2010:WorkflowViewState.IdRef="Sequence_PageBlockCorrection_1">
+                                <sap:WorkflowViewStateService.ViewState>
+                                  <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                    <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                                  </scg:Dictionary>
+                                </sap:WorkflowViewStateService.ViewState>
+                                <ui:InjectJsScript DisplayName="묶음 첫 페이지 숫자 클릭" sap:VirtualizedContainerService.HintSize="416,168" sap2010:WorkflowViewState.IdRef="Inject_PageBlockFirstPage_1" InputParameter="[&quot;{&quot;&quot;action&quot;&quot;:&quot;&quot;NAVIGATE_PAGE&quot;&quot;,&quot;&quot;page&quot;&quot;:&quot; &amp; currentPage.ToString() &amp; &quot;}&quot;]" ScriptCode="[Path.Combine(Environment.CurrentDirectory, &quot;Scripts&quot;, &quot;collect_disclosure_download_candidates.js&quot;)]">
+                                  <ui:InjectJsScript.ScriptOutput>
+                                    <OutArgument x:TypeArguments="x:String">[rawJson]</OutArgument>
+                                  </ui:InjectJsScript.ScriptOutput>
+                                  <ui:InjectJsScript.Target>
+                                    <ui:Target ClippingRegion="{x:Null}" Selector="{x:Null}" Element="[in_MainBrowserElement]" Id="790526a7-e4f4-4822-85cc-a91c43b05b78" TimeoutMS="10000" WaitForReady="COMPLETE" />
+                                  </ui:InjectJsScript.Target>
+                                </ui:InjectJsScript>
+                                <ui:LogMessage DisplayName="묶음 첫 페이지 이동 결과" sap:VirtualizedContainerService.HintSize="416,175" sap2010:WorkflowViewState.IdRef="Log_PageBlockCorrection_1" Level="Trace" Message="[&quot;Page Block Correction Result: &quot; &amp; If(rawJson, String.Empty)]" />
+                                <Delay Duration="00:00:03" sap2010:WorkflowViewState.IdRef="Delay_PageBlockCorrection_1" />
+                              </Sequence>
+                            </If.Then>
+                          </If>
+                        </Sequence>
+                      </If.Then>
+                      <If.Else>
+                        <Sequence DisplayName="Else" sap:VirtualizedContainerService.HintSize="486,747" sap2010:WorkflowViewState.IdRef="Seq_DownloadPopup_1">
+                          <sap:WorkflowViewStateService.ViewState>
+                            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                            </scg:Dictionary>
+                          </sap:WorkflowViewStateService.ViewState>
+                          <Assign sap:VirtualizedContainerService.HintSize="452,175" sap2010:WorkflowViewState.IdRef="Assign_DocType_1">
+                            <Assign.To>
+                              <OutArgument x:TypeArguments="x:String">[documentType]</OutArgument>
+                            </Assign.To>
+                            <Assign.Value>
+                              <InArgument x:TypeArguments="x:String">[If(selectedId.EndsWith("0", StringComparison.Ordinal), "상품요약서", If(selectedId.EndsWith("1", StringComparison.Ordinal), "사업방법서", "보험약관"))]</InArgument>
+                            </Assign.Value>
+                          </Assign>
+                          <Assign sap:VirtualizedContainerService.HintSize="452,175" sap2010:WorkflowViewState.IdRef="Assign_ProductNo_1">
+                            <Assign.To>
+                              <OutArgument x:TypeArguments="x:String">[productNumber]</OutArgument>
+                            </Assign.To>
+                            <Assign.Value>
+                              <InArgument x:TypeArguments="x:String">[selectedId]</InArgument>
+                            </Assign.Value>
+                          </Assign>
+                          <ui:InvokeCode ContinueOnError="{x:Null}" DisplayName="선택 상품 저장정보 추출" sap2010:WorkflowViewState.IdRef="Invoke_ExtractStorageMetadata_1" Code="out_ProductNumber = String.Empty&#xA;out_ProductName = String.Empty&#xA;out_SalePeriod = String.Empty&#xA;&#xA;Dim root As Newtonsoft.Json.Linq.JObject = Newtonsoft.Json.Linq.JObject.Parse(If(in_CandidateJson, String.Empty))&#xA;Dim candidates As Newtonsoft.Json.Linq.JArray = TryCast(root(&quot;candidates&quot;), Newtonsoft.Json.Linq.JArray)&#xA;If candidates Is Nothing OrElse candidates.Count = 0 Then Throw New Exception(&quot;저장정보 후보가 없습니다.&quot;)&#xA;Dim selected As Newtonsoft.Json.Linq.JToken = candidates.FirstOrDefault(Function(c) String.Equals(Convert.ToString(c(&quot;element_id&quot;)), in_SelectedId, StringComparison.Ordinal))&#xA;If selected Is Nothing Then selected = candidates(0)&#xA;out_ProductNumber = Convert.ToString(selected(&quot;number&quot;)).Trim()&#xA;out_ProductName = Convert.ToString(selected(&quot;product&quot;)).Trim()&#xA;out_SalePeriod = Convert.ToString(selected(&quot;sale_period&quot;)).Trim()">
+                            <ui:InvokeCode.Arguments>
+                              <InArgument x:TypeArguments="x:String" x:Key="in_CandidateJson">[rawJson]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="in_SelectedId">[selectedId]</InArgument>
+                              <OutArgument x:TypeArguments="x:String" x:Key="out_ProductNumber">[productNumber]</OutArgument>
+                              <OutArgument x:TypeArguments="x:String" x:Key="out_ProductName">[productName]</OutArgument>
+                              <OutArgument x:TypeArguments="x:String" x:Key="out_SalePeriod">[salePeriod]</OutArgument>
+                            </ui:InvokeCode.Arguments>
+                          </ui:InvokeCode>
+                          <Assign sap2010:WorkflowViewState.IdRef="Assign_ExpectedName_1">
+                            <Assign.To>
+                              <OutArgument x:TypeArguments="x:String">[expectedName]</OutArgument>
+                            </Assign.To>
+                            <Assign.Value>
+                              <InArgument x:TypeArguments="x:String">[productNumber &amp; "_" &amp; documentType &amp; ".pdf"]</InArgument>
+                            </Assign.Value>
+                          </Assign>
+                          <Delay Duration="00:00:05" sap2010:WorkflowViewState.IdRef="Delay_Popup_1" />
+                          <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="PDF 새 창 연결" sap:VirtualizedContainerService.HintSize="452,177" sap2010:WorkflowViewState.IdRef="Invoke_AttachViewer_1" UnSafe="False" WorkflowFileName="Attach_Pdf_Viewer.xaml">
+                            <ui:InvokeWorkflowFile.Arguments>
+                              <OutArgument x:TypeArguments="ui:UiElement" x:Key="out_ViewerElement">[viewerElement]</OutArgument>
+                              <OutArgument x:TypeArguments="x:Boolean" x:Key="out_AttachSuccess">[attachSuccess]</OutArgument>
+                              <OutArgument x:TypeArguments="x:String" x:Key="out_ErrorMessage">[stepError]</OutArgument>
+                            </ui:InvokeWorkflowFile.Arguments>
+                          </ui:InvokeWorkflowFile>
+                          <If Condition="[Not attachSuccess]" sap2010:WorkflowViewState.IdRef="If_AttachFail_1">
+                            <If.Then>
+                              <Throw Exception="[New Exception(&quot;PDF 새 창 연결 실패: &quot; &amp; stepError)]" sap2010:WorkflowViewState.IdRef="Throw_AttachFail_1" />
+                            </If.Then>
+                          </If>
+                          <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="LLM 선택 및 UiPath 다운로드" sap2010:WorkflowViewState.IdRef="Invoke_DownloadViewer_1" UnSafe="False" WorkflowFileName="Download_From_Pdf_Viewer.xaml">
+                            <ui:InvokeWorkflowFile.Arguments>
+                              <InArgument x:TypeArguments="ui:UiElement" x:Key="in_ViewerElement">[viewerElement]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="in_LlmApiBase">[in_LlmApiBase]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="in_LlmApiKey">[in_LlmApiKey]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="in_LlmModel">[in_LlmModel]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="in_DownloadFolder">[in_DownloadFolder]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="in_ExpectedFileName">[expectedName]</InArgument>
+                              <InArgument x:TypeArguments="x:Int32" x:Key="in_TimeoutSeconds">60</InArgument>
+                              <OutArgument x:TypeArguments="x:Boolean" x:Key="out_DownloadSuccess">[downloadSuccess]</OutArgument>
+                              <OutArgument x:TypeArguments="x:String" x:Key="out_DownloadedFilePath">[downloadedPath]</OutArgument>
+                              <OutArgument x:TypeArguments="x:String" x:Key="out_SelectedElementId">[viewerSelectedId]</OutArgument>
+                              <OutArgument x:TypeArguments="x:String" x:Key="out_ErrorMessage">[stepError]</OutArgument>
+                            </ui:InvokeWorkflowFile.Arguments>
+                          </ui:InvokeWorkflowFile>
+                          <If Condition="[Not downloadSuccess]" sap2010:WorkflowViewState.IdRef="If_DownloadFail_1">
+                            <If.Then>
+                              <Throw Exception="[New Exception(&quot;PDF 다운로드 실패: &quot; &amp; stepError)]" sap2010:WorkflowViewState.IdRef="Throw_DownloadFail_1" />
+                            </If.Then>
+                          </If>
+                          <ui:InvokeCode ContinueOnError="{x:Null}" DisplayName="판매기간별 폴더 생성 및 파일명 변경" sap2010:WorkflowViewState.IdRef="Invoke_OrganizeDownloadedFile_1" Code="If String.IsNullOrWhiteSpace(in_DownloadedPath) OrElse Not System.IO.File.Exists(in_DownloadedPath) Then Throw New Exception(&quot;정리할 다운로드 파일이 없습니다: &quot; &amp; If(in_DownloadedPath, String.Empty))&#xA;&#xA;Dim safeProduct As String = If(in_ProductName, String.Empty).Trim()&#xA;For Each invalidChar As Char In System.IO.Path.GetInvalidFileNameChars()&#xA;    safeProduct = safeProduct.Replace(invalidChar, &quot;_&quot;c)&#xA;Next&#xA;safeProduct = System.Text.RegularExpressions.Regex.Replace(safeProduct, &quot;\s+&quot;, &quot; &quot;).Trim().TrimEnd(&quot;.&quot;c)&#xA;If String.IsNullOrWhiteSpace(safeProduct) Then safeProduct = If(String.IsNullOrWhiteSpace(in_ProductNumber), &quot;상품명미상&quot;, in_ProductNumber.Trim())&#xA;If safeProduct.Length &gt; 120 Then safeProduct = safeProduct.Substring(0, 120).Trim()&#xA;&#xA;Dim matches As System.Text.RegularExpressions.MatchCollection = System.Text.RegularExpressions.Regex.Matches(If(in_SalePeriod, String.Empty), &quot;\d{4}-\d{2}-\d{2}&quot;)&#xA;Dim startDate As DateTime = DateTime.MinValue&#xA;Dim endDate As DateTime = DateTime.MinValue&#xA;Dim hasStart As Boolean = matches.Count &gt; 0 AndAlso DateTime.TryParseExact(matches(0).Value, &quot;yyyy-MM-dd&quot;, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, startDate)&#xA;Dim hasEnd As Boolean = matches.Count &gt; 1 AndAlso DateTime.TryParseExact(matches(1).Value, &quot;yyyy-MM-dd&quot;, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, endDate)&#xA;Dim saleStatus As String = If(hasEnd AndAlso endDate.Date &lt; DateTime.Today, &quot;판매중지&quot;, &quot;판매중&quot;)&#xA;&#xA;Dim rootFolder As String = System.IO.Path.Combine(Environment.CurrentDirectory, &quot;01_문서&quot;, &quot;삼성생명&quot;)&#xA;Dim productFolder As String&#xA;If hasStart Then&#xA;    productFolder = System.IO.Path.Combine(rootFolder, startDate.ToString(&quot;yyyy&quot;), startDate.ToString(&quot;MM&quot;), saleStatus &amp; &quot;__&quot; &amp; startDate.ToString(&quot;yyyyMMdd&quot;) &amp; &quot;_&quot; &amp; safeProduct)&#xA;Else&#xA;    productFolder = System.IO.Path.Combine(rootFolder, &quot;날짜미상&quot;, saleStatus &amp; &quot;_날짜미상_&quot; &amp; safeProduct)&#xA;End If&#xA;System.IO.Directory.CreateDirectory(productFolder)&#xA;&#xA;Dim finalName As String&#xA;Select Case If(in_DocumentType, String.Empty).Trim()&#xA;    Case &quot;상품요약서&quot; : finalName = &quot;상품요약서.pdf&quot;&#xA;    Case &quot;사업방법서&quot; : finalName = &quot;사업방법서.pdf&quot;&#xA;    Case Else : finalName = &quot;약관.pdf&quot;&#xA;End Select&#xA;Dim destination As String = System.IO.Path.Combine(productFolder, finalName)&#xA;If System.IO.File.Exists(destination) Then&#xA;    Dim baseName As String = System.IO.Path.GetFileNameWithoutExtension(finalName)&#xA;    Dim index As Integer = 1&#xA;    Do&#xA;        destination = System.IO.Path.Combine(productFolder, baseName &amp; &quot; (&quot; &amp; index.ToString() &amp; &quot;).pdf&quot;)&#xA;        index += 1&#xA;    Loop While System.IO.File.Exists(destination)&#xA;End If&#xA;System.IO.File.Move(System.IO.Path.GetFullPath(in_DownloadedPath), destination)&#xA;out_FinalPath = destination">
+                            <ui:InvokeCode.Arguments>
+                              <InArgument x:TypeArguments="x:String" x:Key="in_DownloadedPath">[downloadedPath]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="in_ProductNumber">[productNumber]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="in_ProductName">[productName]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="in_SalePeriod">[salePeriod]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="in_DocumentType">[documentType]</InArgument>
+                              <OutArgument x:TypeArguments="x:String" x:Key="out_FinalPath">[finalSavedPath]</OutArgument>
+                            </ui:InvokeCode.Arguments>
+                          </ui:InvokeCode>
+                          <Assign DisplayName="최종 저장 경로 반영" sap2010:WorkflowViewState.IdRef="Assign_FinalSavedPath_1"><Assign.To><OutArgument x:TypeArguments="x:String">[downloadedPath]</OutArgument></Assign.To><Assign.Value><InArgument x:TypeArguments="x:String">[finalSavedPath]</InArgument></Assign.Value></Assign>
+                          <ui:LogMessage DisplayName="문서 최종 저장 경로" sap2010:WorkflowViewState.IdRef="Log_FinalSavedPath_1" Level="Info" Message="[&quot;문서 저장 완료 | 상품=&quot; &amp; productName &amp; &quot; | 판매기간=&quot; &amp; salePeriod &amp; &quot; | 문서=&quot; &amp; documentType &amp; &quot; | 경로=&quot; &amp; finalSavedPath]" />
+                          <ui:SendHotkey ClickBeforeTyping="{x:Null}" DelayBefore="{x:Null}" DelayBetweenKeys="{x:Null}" DelayMS="{x:Null}" EmptyField="{x:Null}" SendWindowMessages="{x:Null}" SpecialKey="{x:Null}" Activate="True" DisplayName="PDF 새 창 닫기" sap2010:WorkflowViewState.IdRef="Hotkey_CloseViewer_1" Key="w" KeyModifiers="Ctrl">
+                            <ui:SendHotkey.Target>
+                              <ui:Target ClippingRegion="{x:Null}" Selector="{x:Null}" Element="[viewerElement]" Id="163d73b1-377f-4d38-be19-3c81145489a2" TimeoutMS="10000" WaitForReady="INTERACTIVE" />
+                            </ui:SendHotkey.Target>
+                          </ui:SendHotkey>
+                          <ui:InjectJsScript DisplayName="문서 처리 완료 표시" sap2010:WorkflowViewState.IdRef="Inject_MarkDoc_1" InputParameter="[&quot;{&quot;&quot;action&quot;&quot;:&quot;&quot;MARK_PROCESSED&quot;&quot;,&quot;&quot;element_id&quot;&quot;:&quot;&quot;&quot; &amp; selectedId &amp; &quot;&quot;&quot;}&quot;]" ScriptCode="[Path.Combine(Environment.CurrentDirectory, &quot;Scripts&quot;, &quot;collect_disclosure_download_candidates.js&quot;)]">
+                            <ui:InjectJsScript.ScriptOutput>
+                              <OutArgument x:TypeArguments="x:String">[markResult]</OutArgument>
+                            </ui:InjectJsScript.ScriptOutput>
+                            <ui:InjectJsScript.Target>
+                              <ui:Target ClippingRegion="{x:Null}" Selector="{x:Null}" Element="[in_MainBrowserElement]" Id="e25522ef-c607-4b69-93e2-f28046736f63" TimeoutMS="10000" WaitForReady="INTERACTIVE" />
+                            </ui:InjectJsScript.Target>
+                          </ui:InjectJsScript>
+                          <Assign sap2010:WorkflowViewState.IdRef="Assign_IncCount_1">
+                            <Assign.To>
+                              <OutArgument x:TypeArguments="x:Int32">[out_DownloadCount]</OutArgument>
+                            </Assign.To>
+                            <Assign.Value>
+                              <InArgument x:TypeArguments="x:Int32">[out_DownloadCount + 1]</InArgument>
+                            </Assign.Value>
+                          </Assign>
+                        </Sequence>
+                      </If.Else>
+                    </If>
+                  </Sequence>
+                </If.Else>
+              </If>
+            </Sequence>
+          </While>
+          <Assign sap:VirtualizedContainerService.HintSize="604,166" sap2010:WorkflowViewState.IdRef="Assign_AllSuccess_1">
+            <Assign.To>
+              <OutArgument x:TypeArguments="x:Boolean">[out_Success]</OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="x:Boolean">True</InArgument>
+            </Assign.Value>
+          </Assign>
+        </Sequence>
+      </TryCatch.Try>
+      <TryCatch.Catches>
+        <Catch x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="Catch_AllDocs_1">
+          <ActivityAction x:TypeArguments="s:Exception">
+            <ActivityAction.Argument>
+              <DelegateInArgument x:TypeArguments="s:Exception" Name="exception" />
+            </ActivityAction.Argument>
+            <Sequence DisplayName="캐치" sap2010:WorkflowViewState.IdRef="Seq_AllDocsCatch_1">
+              <Assign sap2010:WorkflowViewState.IdRef="Assign_AllError_1">
+                <Assign.To>
+                  <OutArgument x:TypeArguments="x:String">[out_ErrorMessage]</OutArgument>
+                </Assign.To>
+                <Assign.Value>
+                  <InArgument x:TypeArguments="x:String">[exception.Message]</InArgument>
+                </Assign.Value>
+              </Assign>
+              <Assign sap2010:WorkflowViewState.IdRef="Assign_AllFail_1">
+                <Assign.To>
+                  <OutArgument x:TypeArguments="x:Boolean">[out_Success]</OutArgument>
+                </Assign.To>
+                <Assign.Value>
+                  <InArgument x:TypeArguments="x:Boolean">False</InArgument>
+                </Assign.Value>
+              </Assign>
+              <ui:LogMessage sap2010:WorkflowViewState.IdRef="Log_AllError_1" Level="Error" Message="[out_ErrorMessage]" />
+            </Sequence>
+          </ActivityAction>
+        </Catch>
+      </TryCatch.Catches>
+    </TryCatch>
+  </Sequence>
+</Activity>

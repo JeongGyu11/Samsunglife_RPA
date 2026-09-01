@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-16"?>
+<ObjectRepositoryScreenData ContentHash="SIXgVdFAeU-vOY4uBUF5dg" Reference="fwHfLqc290esJl_p5URJfQ/7T1msL_7a0-EwIGEAMToGA" xmlns="http://schemas.uipath.com/workflow/activities/uix" xmlns:p="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ObjectRepositoryScreenData.Data>
+    <TargetApp x:Key="TargetApp" Area="0, 0, 0, 0" BrowserType="Chrome" Reference="fwHfLqc290esJl_p5URJfQ/7T1msL_7a0-EwIGEAMToGA" Selector="&lt;html app='chrome.exe' url='https://pcms.samsunglife.com/partnerpage/CustomerPage_*' /&gt;" Url="https://pcms.samsunglife.com/partnerpage/CustomerPage_*" Version="V3">
+      <TargetApp.Arguments>
+        <p:InArgument x:TypeArguments="x:String" />
+      </TargetApp.Arguments>
+      <TargetApp.WorkingDirectory>
+        <p:InArgument x:TypeArguments="x:String" />
+      </TargetApp.WorkingDirectory>
+    </TargetApp>
+  </ObjectRepositoryScreenData.Data>
+</ObjectRepositoryScreenData>

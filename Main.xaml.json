@@ -1,0 +1,93 @@
+{
+  "DisplayName": "Main",
+  "Tooltip": null,
+  "HelpLink": null,
+  "Color": null,
+  "OriginalIconFileName": null,
+  "Arguments": [
+    {
+      "Name": "in_ControlCode",
+      "DisplayName": "in_ControlCode",
+      "Category": null,
+      "Tooltip": null,
+      "Placeholder": "MAIL01",
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    },
+    {
+      "Name": "in_MaxSteps",
+      "DisplayName": "in_MaxSteps",
+      "Category": null,
+      "Tooltip": null,
+      "Placeholder": "20",
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    },
+    {
+      "Name": "in_StartUrl",
+      "DisplayName": "in_StartUrl",
+      "Category": null,
+      "Tooltip": null,
+      "Placeholder": "https://www.samsunglife.com/individual/products/disclosure/sales/PDO-PRPRI010110M",
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    },
+    {
+      "Name": "in_ObjectiveText",
+      "DisplayName": "in_ObjectiveText",
+      "Category": null,
+      "Tooltip": null,
+      "Placeholder": "조회설정 팝업에서 판매연도를 2024로 선택한 후 확인 버튼 클릭",
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    },
+    {
+      "Name": "in_LlmApiKey",
+      "DisplayName": "in_LlmApiKey",
+      "Category": null,
+      "Tooltip": null,
+      "Placeholder": "",
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    },
+    {
+      "Name": "in_LlmModel",
+      "DisplayName": "in_LlmModel",
+      "Category": null,
+      "Tooltip": null,
+      "Placeholder": "Qwen/Qwen3.8-27B",
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    },
+    {
+      "Name": "in_LlmApiBase",
+      "DisplayName": "in_LlmApiBase",
+      "Category": null,
+      "Tooltip": null,
+      "Placeholder": "https://3ewe5z22ue1gso-8000.proxy.runpod.net/",
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    }
+  ]
+}

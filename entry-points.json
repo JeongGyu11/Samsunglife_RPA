@@ -1,0 +1,53 @@
+{
+  "$schema": "https://cloud.uipath.com/draft/2024-12/entry-point",
+  "entryPoints": [
+    {
+      "filePath": "Main.xaml",
+      "uniqueId": "6c8eef7c-1c32-4a6d-9ac4-1d3b61430ce6",
+      "type": "process",
+      "input": {
+        "type": "object",
+        "properties": {
+          "in_ControlCode": {
+            "type": "string",
+            "x-default-expression": "\"MAIL01\"",
+            "default": "MAIL01"
+          },
+          "in_MaxSteps": {
+            "type": "integer",
+            "minimum": -2147483648,
+            "maximum": 2147483647,
+            "x-default-expression": "300",
+            "default": 300
+          },
+          "in_StartUrl": {
+            "type": "string",
+            "x-default-expression": "\"https://www.samsunglife.com/individual/products/disclosure/sales/PDO-PRPRI010110M\"",
+            "default": "https://www.samsunglife.com/individual/products/disclosure/sales/PDO-PRPRI010110M"
+          },
+          "in_ObjectiveText": {
+            "type": "string",
+            "x-default-expression": "\"Step 1: 메인 화면의 [전체· 전체· 전체·\n] 영역을 클릭하여 조회설정 팝업을 엽니다.\nStep 2: 팝업 내부의 판매연도 값인 [전체연도]를 클릭하여 드롭다운을 엽니다. \nStep 3: 드롭다운 목록에서 \"\"2024\"\"인 항목을 찾아 선택합니다.\nStep 4: 판매연도 값이 \"\"2024\"\"로 바뀐것을 확인 후 하단 확인 버튼을 누르고 종료합니다\"",
+            "default": "Step 1: 메인 화면의 [전체· 전체· 전체·\n] 영역을 클릭하여 조회설정 팝업을 엽니다.\nStep 2: 팝업 내부의 판매연도 값인 [전체연도]를 클릭하여 드롭다운을 엽니다. \nStep 3: 드롭다운 목록에서 \"2024\"인 항목을 찾아 선택합니다.\nStep 4: 판매연도 값이 \"2024\"로 바뀐것을 확인 후 하단 확인 버튼을 누르고 종료합니다"
+          },
+          "in_LlmApiKey": {
+            "type": "string",
+            "x-default-expression": "\"\"",
+            "default": ""
+          },
+          "in_LlmModel": {
+            "type": "string",
+            "x-default-expression": "\"Qwen/Qwen3.8-27B\"",
+            "default": "Qwen/Qwen3.8-27B"
+          },
+          "in_LlmApiBase": {
+            "type": "string",
+            "x-default-expression": "\"https://3ewe5z22ue1gso-8000.proxy.runpod.net/v1/chat/completions\"",
+            "default": "https://3ewe5z22ue1gso-8000.proxy.runpod.net/v1/chat/completions"
+          }
+        },
+        "required": []
+      }
+    }
+  ]
+}

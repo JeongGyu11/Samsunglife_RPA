@@ -1,0 +1,46 @@
+function (element, input) {
+ "use strict";
+ function txt(n){return String((n&&(n.innerText||n.textContent))||"").replace(/\s+/g," ").trim();}
+ function vis(n){return !!(n&&(n.offsetWidth||n.offsetHeight||n.getClientRects().length));}
+ function enabled(n){if(!n)return false;var cls=String(n.className||"").toLowerCase();var pcls=String((n.parentElement&&n.parentElement.className)||"").toLowerCase();return vis(n)&&!n.disabled&&n.getAttribute("aria-disabled")!=="true"&&n.getAttribute("disabled")===null&&cls.indexOf("disabled")<0&&pcls.indexOf("disabled")<0;}
+ function clickTarget(cell){if(!cell)return null;var n=cell.querySelector("a,button,[role='button'],[onclick]");if(n)return n;var i=cell.querySelector("img,svg,i");return i?(i.closest("a,button,[role='button'],[onclick]")||i):null;}
+ function pageControl(value){var nodes=document.querySelectorAll("button,a,[role='button'],[onclick]"),found=[];for(var i=0;i<nodes.length;i++){var c=nodes[i];if(txt(c).replace(/\s+/g,"")!==String(value)||!enabled(c)||found.indexOf(c)>=0)continue;found.push(c);}found.sort(function(a,b){var ac=String(a.className||"").toLowerCase(),bc=String(b.className||"").toLowerCase(),ap=String((a.parentElement&&a.parentElement.className)||"").toLowerCase(),bp=String((b.parentElement&&b.parentElement.className)||"").toLowerCase(),as=(ac+" "+ap).indexOf("pag")>=0?1:0,bs=(bc+" "+bp).indexOf("pag")>=0?1:0;if(as!==bs)return bs-as;return b.getBoundingClientRect().top-a.getBoundingClientRect().top;});return found.length?found[0]:null;}
+ function blockNextControl(){var nodes=document.querySelectorAll("button.btn-paging-next,a.btn-paging-next,.pagination-next,.paging-next,[aria-label='다음 페이지'],[title='다음 페이지'],[aria-label='next'],[title='next'],button,a,[role='button']"),found=[];for(var i=0;i<nodes.length;i++){var c=nodes[i].closest("button,a,[role='button'],[onclick]")||nodes[i],v=txt(c).replace(/\s+/g,""),label=String(c.getAttribute("aria-label")||c.getAttribute("title")||"").toLowerCase(),cls=String(c.className||"").toLowerCase();var isNext=v===">"||v==="›"||label==="next"||label.indexOf("다음 페이지")>=0||cls.indexOf("paging-next")>=0||cls.indexOf("pagination-next")>=0;if(!isNext||v===">>"||v==="»"||label.indexOf("last")>=0||label.indexOf("마지막")>=0||!enabled(c)||found.indexOf(c)>=0)continue;found.push(c);}found.sort(function(a,b){return b.getBoundingClientRect().top-a.getBoundingClientRect().top;});return found.length?found[0]:null;}
+ var req={};try{req=JSON.parse(String(input||"{}"));}catch(ignored){}
+ var action=String(req.action||"COLLECT").toUpperCase(), processedId=String(req.element_id||""), startRow=Math.max(0,parseInt(req.start_row||0,10)||0), currentPage=Math.max(1,parseInt(req.current_page||1,10)||1), pageOnlyTest=req.page_only_test===true||String(req.page_only_test||"").toLowerCase()==="true";
+ if(action==="VERIFY_PAGE_CHANGE"){var expected=String(Math.max(1,parseInt(req.expected_page||1,10)||1)),nodes=document.querySelectorAll("button,a,li,span"),activeText="",changed=false;for(var vi=0;vi<nodes.length;vi++){var nodeText=txt(nodes[vi]).replace(/\s+/g,"");if(nodeText!==expected||!vis(nodes[vi]))continue;var stateNode=nodes[vi],stateText="",paginationContext=false;for(var depth=0;depth<6&&stateNode;depth++,stateNode=stateNode.parentElement){var stateClass=String(stateNode.className||"").toLowerCase(),aria=String(stateNode.getAttribute("aria-current")||"").toLowerCase();stateText+=" "+stateClass;if(aria==="page"||stateClass.indexOf("active")>=0||stateClass.indexOf("selected")>=0||stateClass.indexOf("current")>=0||stateClass.split(/\s+/).indexOf("on")>=0){changed=true;break;}if(stateClass.indexOf("pag")>=0)paginationContext=true;}if(!changed&&paginationContext&&!pageControl(expected))changed=true;if(changed){activeText=nodeText;break;}}var verifyTables=document.querySelectorAll("table"),verifyTable=null;for(var vt=0;vt<verifyTables.length;vt++){var vtt=txt(verifyTables[vt]);if(vtt.indexOf("사업방법서")>=0&&vtt.indexOf("보험약관")>=0){verifyTable=verifyTables[vt];break;}}var verifyRows=verifyTable?verifyTable.querySelectorAll("tbody tr"):[],firstRow=verifyRows.length?txt(verifyRows[0]):"",signature=firstRow+"|"+location.href;var previous=String(window.__rpaDisclosurePageSignature||"");if(!changed&&previous&&signature!==previous)changed=true;return JSON.stringify({success:changed,action:action,expected_page:parseInt(expected,10),active_page:activeText,previous_signature:previous,current_signature:signature,error:changed?"":"다음 페이지 클릭 후 활성 페이지와 첫 상품이 모두 변경되지 않았습니다."});}
+ if(action==="FORCE_YEAR_COMPLETE"){window.__rpaForceYearComplete=true;return JSON.stringify({success:true,action:action,year_complete:true});}
+ if(action==="NAVIGATE_PAGE"){var targetNumber=Math.max(1,parseInt(req.page||1,10)||1),targetPage=String(targetNumber),navTarget=pageControl(targetPage);if(navTarget){navTarget.click();return JSON.stringify({success:true,action:action,page:targetNumber,mode:"TARGET_PAGE"});}if(targetNumber>1&&targetNumber%10===1){var blockNext=blockNextControl();if(blockNext){blockNext.click();return JSON.stringify({success:true,action:action,page:targetNumber,mode:"ADVANCE_BLOCK"});}}return JSON.stringify({success:false,action:action,page:targetNumber,error:"숫자 페이지를 찾지 못했으며 10페이지 묶음 전환 조건도 아닙니다."});}
+ if(action==="MARK_PROCESSED"&&processedId){var m=document.querySelector('[data-rpa-download-id="'+processedId.replace(/"/g,'\\"')+'"]');if(m)m.setAttribute("data-rpa-download-processed","true");return JSON.stringify({success:!!m,action:action,element_id:processedId});}
+ var tables=document.querySelectorAll("table"), table=null;
+ for(var ti=0;ti<tables.length;ti++){var tt=txt(tables[ti]);if(tt.indexOf("\uC0AC\uC5C5\uBC29\uBC95\uC11C")>=0&&tt.indexOf("\uBCF4\uD5D8\uC57D\uAD00")>=0){table=tables[ti];break;}}
+ if(!table&&tables.length===1)table=tables[0];
+ if(!table)return JSON.stringify({success:false,error:"Disclosure product table not found",table_count:tables.length,candidates:[]});
+ var hc=table.querySelectorAll("thead th");if(!hc.length)hc=table.querySelectorAll("tr th");
+ var headers=Array.prototype.map.call(hc,txt), si=headers.indexOf("\uC0C1\uD488\uC694\uC57D\uC11C"), bi=headers.indexOf("\uC0AC\uC5C5\uBC29\uBC95\uC11C"), ti2=headers.indexOf("\uBCF4\uD5D8\uC57D\uAD00");
+ var rows=table.querySelectorAll("tbody tr");if(!rows.length)rows=table.querySelectorAll("tr");
+ var candidates=[], dataRows=0;
+ for(var r=0;r<rows.length;r++){
+  var cells=rows[r].querySelectorAll("td");if(cells.length<2)continue;dataRows++;if(dataRows<=startRow)continue;
+  var b=bi>=0?bi:cells.length-2,t=ti2>=0?ti2:cells.length-1,number=cells[0]?txt(cells[0]):"",product=cells[2]?txt(cells[2]):"",salePeriod=cells[3]?txt(cells[3]):"";
+  var docs=[];if(si>=0)docs.push({type:"PRODUCT_SUMMARY",index:si,code:0});docs.push({type:"BUSINESS_METHOD",index:b,code:1});docs.push({type:"TERMS",index:t,code:2});
+ for(var d=0;d<docs.length;d++){var target=clickTarget(cells[docs[d].index]);if(!target||target.getAttribute("data-rpa-download-processed")==="true")continue;var id="E"+String(dataRows*10+docs[d].code).padStart(4,"0");target.setAttribute("data-rpa-download-id",id);target.setAttribute("data-rpa-element-id",id);candidates.push({element_id:id,operation:"DOWNLOAD",row_index:dataRows-1,number:number,product:product,sale_period:salePeriod,document_type:docs[d].type,tag:String(target.tagName||""),title:target.getAttribute("title")||target.getAttribute("aria-label")||"",is_visible:vis(target)});}
+ }
+ if(pageOnlyTest)candidates=[];
+ var bodyText=txt(document.body),totalMatch=bodyText.match(/총\s*([0-9,]+)\s*건/),totalCount=totalMatch?parseInt(totalMatch[1].replace(/,/g,""),10):0;
+ var rememberedPageSize=Math.max(parseInt(window.__rpaDisclosurePageSize||0,10)||0,dataRows);
+ if(rememberedPageSize>0)window.__rpaDisclosurePageSize=rememberedPageSize;
+ var totalPages=totalCount>0&&rememberedPageSize>0?Math.ceil(totalCount/rememberedPageSize):0;
+ var forcedYearComplete=window.__rpaForceYearComplete===true;
+ if(forcedYearComplete)candidates=[];
+ var reachedLastByCount=forcedYearComplete||(totalPages>0&&currentPage>=totalPages);
+ var next=null,wantedPage=String(currentPage+1);
+ if(currentPage%10!==0)next=pageControl(wantedPage);
+ if(!next&&currentPage%10===0)next=blockNextControl();
+ var hasNext=enabled(next)&&!reachedLastByCount;
+ if(candidates.length===0&&hasNext){next.setAttribute("data-rpa-element-id","E999999");candidates.push({element_id:"E999999",operation:"CLICK",document_type:"NEXT_PAGE",text:"NEXT_PAGE",tag:String(next.tagName||""),is_visible:vis(next)});}
+ var orderedCandidates=candidates.length>0?[candidates[0]]:[];
+ var signatureRows=table.querySelectorAll("tbody tr");window.__rpaDisclosurePageSignature=(signatureRows.length?txt(signatureRows[0]):"")+"|"+location.href;
+ var isLastPage=orderedCandidates.length===0&&!hasNext;
+ return JSON.stringify({success:true,table_count:tables.length,headers:headers,data_row_count:dataRows,total_count:totalCount,page_size:rememberedPageSize,total_pages:totalPages,current_page:currentPage,next_page:hasNext?currentPage+1:null,candidate_count:orderedCandidates.length,candidates:orderedCandidates,has_next_page:hasNext,reached_last_by_count:reachedLastByCount,is_last_page:isLastPage,year_complete:isLastPage});
+}

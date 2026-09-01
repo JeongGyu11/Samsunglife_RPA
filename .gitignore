@@ -1,0 +1,38 @@
+# UiPath local caches and user-specific settings
+.local/
+.settings/
+.screenshots/
+.tmh/
+UiPath/
+.autopilot/
+
+# Runtime evidence, downloaded disclosures, and logs
+Evidence/
+Downloads/
+**/Downloads/
+*.log
+
+# Temporary workflows and local overrides
+Temp_*.xaml
+*.user
+*.tmp
+*.bak
+
+# Secrets and environment-specific configuration
+.env
+.env.*
+!.env.example
+secrets.*
+credentials.*
+
+# Build/package output
+bin/
+obj/
+packages/
+*.nupkg
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

@@ -1,0 +1,12 @@
+﻿{
+  "Name": "Chrome 삼성생명",
+  "Type": "App",
+  "Id": "996DjKpRwUebx1xDoWioZw",
+  "Reference": "fwHfLqc290esJl_p5URJfQ/996DjKpRwUebx1xDoWioZw",
+  "Created": "2026-08-24T07:24:59.7075605Z",
+  "Updated": "2026-08-24T07:24:59.7075605Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.2.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.7.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

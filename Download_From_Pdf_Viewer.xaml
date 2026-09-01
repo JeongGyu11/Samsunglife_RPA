@@ -1,0 +1,266 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="Download_From_Pdf_Viewer" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property Name="in_ViewerElement" Type="InArgument(ui:UiElement)" />
+    <x:Property Name="in_LlmApiBase" Type="InArgument(x:String)" />
+    <x:Property Name="in_LlmApiKey" Type="InArgument(x:String)" />
+    <x:Property Name="in_LlmModel" Type="InArgument(x:String)" />
+    <x:Property Name="in_DownloadFolder" Type="InArgument(x:String)" />
+    <x:Property Name="in_ExpectedFileName" Type="InArgument(x:String)" />
+    <x:Property Name="in_TimeoutSeconds" Type="InArgument(x:Int32)" />
+    <x:Property Name="out_DownloadSuccess" Type="OutArgument(x:Boolean)" />
+    <x:Property Name="out_DownloadedFilePath" Type="OutArgument(x:String)" />
+    <x:Property Name="out_SelectedElementId" Type="OutArgument(x:String)" />
+    <x:Property Name="out_ErrorMessage" Type="OutArgument(x:String)" />
+  </x:Members>
+  <VisualBasic.Settings>
+    <x:Null />
+  </VisualBasic.Settings>
+  <sap2010:WorkflowViewState.IdRef>Download_From_Pdf_Viewer_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>GlobalConstantsNamespace</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomation.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomation.Activities.Runtime</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>Newtonsoft.Json</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence DisplayName="LLM이 PDF 다운로드 버튼을 선택하고 UiPath가 다운로드" sap2010:WorkflowViewState.IdRef="Sequence_PdfDownload_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:String" Name="candidateJson" />
+      <Variable x:TypeArguments="x:Int32" Name="candidateCount" />
+      <Variable x:TypeArguments="scg:Dictionary(x:String, ui:UiElement)" Name="elementMap" />
+      <Variable x:TypeArguments="x:String" Name="collectionMethod" />
+      <Variable x:TypeArguments="x:Boolean" Name="collectSuccess" />
+      <Variable x:TypeArguments="x:String" Name="stepError" />
+      <Variable x:TypeArguments="x:Boolean" Name="selectSuccess" />
+      <Variable x:TypeArguments="x:Int32" Name="llmStatusCode" />
+      <Variable x:TypeArguments="x:String" Name="llmRawResponse" />
+      <Variable x:TypeArguments="x:String" Name="llmContent" />
+      <Variable x:TypeArguments="x:String" Name="resolvedOperation" />
+      <Variable x:TypeArguments="x:String" Name="selectedValue" />
+      <Variable x:TypeArguments="ui:UiElement" Name="selectedUiElement" />
+      <Variable x:TypeArguments="x:Boolean" Name="resolveSuccess" />
+      <Variable x:TypeArguments="x:String" Name="downloadMode" />
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <ui:MultipleAssign DisplayName="결과 초기화" sap2010:WorkflowViewState.IdRef="MultipleAssign_PdfDownload_1">
+      <ui:MultipleAssign.AssignOperations>
+        <scg:List x:TypeArguments="ui:AssignOperation" Capacity="4">
+          <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AssignOp_Pdf_1">
+            <ui:AssignOperation.To>
+              <OutArgument x:TypeArguments="x:Boolean">[out_DownloadSuccess]</OutArgument>
+            </ui:AssignOperation.To>
+            <ui:AssignOperation.Value>
+              <InArgument x:TypeArguments="x:Boolean">False</InArgument>
+            </ui:AssignOperation.Value>
+          </ui:AssignOperation>
+          <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AssignOp_Pdf_2">
+            <ui:AssignOperation.To>
+              <OutArgument x:TypeArguments="x:String">[out_DownloadedFilePath]</OutArgument>
+            </ui:AssignOperation.To>
+            <ui:AssignOperation.Value>
+              <InArgument x:TypeArguments="x:String">[String.Empty]</InArgument>
+            </ui:AssignOperation.Value>
+          </ui:AssignOperation>
+          <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AssignOp_Pdf_3">
+            <ui:AssignOperation.To>
+              <OutArgument x:TypeArguments="x:String">[out_SelectedElementId]</OutArgument>
+            </ui:AssignOperation.To>
+            <ui:AssignOperation.Value>
+              <InArgument x:TypeArguments="x:String">[String.Empty]</InArgument>
+            </ui:AssignOperation.Value>
+          </ui:AssignOperation>
+          <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AssignOp_Pdf_4">
+            <ui:AssignOperation.To>
+              <OutArgument x:TypeArguments="x:String">[out_ErrorMessage]</OutArgument>
+            </ui:AssignOperation.To>
+            <ui:AssignOperation.Value>
+              <InArgument x:TypeArguments="x:String">[String.Empty]</InArgument>
+            </ui:AssignOperation.Value>
+          </ui:AssignOperation>
+        </scg:List>
+      </ui:MultipleAssign.AssignOperations>
+    </ui:MultipleAssign>
+    <TryCatch DisplayName="PDF 다운로드 실행" sap2010:WorkflowViewState.IdRef="TryCatch_PdfDownload_1">
+      <TryCatch.Try>
+        <Sequence DisplayName="후보 수집부터 파일 검증까지" sap2010:WorkflowViewState.IdRef="Sequence_PdfDownloadTry_1">
+          <If Condition="[in_ViewerElement Is Nothing]" DisplayName="Viewer 입력 검증" sap2010:WorkflowViewState.IdRef="If_PdfViewer_1">
+            <If.Then>
+              <Throw Exception="[New Exception(&quot;PDF Viewer UiElement가 없습니다.&quot;)]" sap2010:WorkflowViewState.IdRef="Throw_PdfViewer_1" />
+            </If.Then>
+          </If>
+          <Delay DisplayName="PDF 툴바 접근성 정보 로딩 대기" Duration="00:00:05" sap2010:WorkflowViewState.IdRef="Delay_PdfToolbarReady_1" />
+          <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="PDF Viewer 후보 수집" sap2010:WorkflowViewState.IdRef="Invoke_CollectPdf_1" UnSafe="False" WorkflowFileName="Collect_UI_Candidates.xaml">
+            <ui:InvokeWorkflowFile.Arguments>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_ErrorMessage">[stepError]</OutArgument>
+              <OutArgument x:TypeArguments="x:Boolean" x:Key="out_CollectSuccess">[collectSuccess]</OutArgument>
+              <OutArgument x:TypeArguments="scg:Dictionary(x:String, ui:UiElement)" x:Key="out_ElementMap">[elementMap]</OutArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_CollectionMethod">[collectionMethod]</OutArgument>
+              <OutArgument x:TypeArguments="x:Int32" x:Key="out_CandidateCount">[candidateCount]</OutArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_CandidateJson">[candidateJson]</OutArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_ScriptPath">[Path.Combine(Environment.CurrentDirectory, "Scripts", "collect_ui_candidates.js")]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_Operation">CLICK</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_TargetType">DESKTOP</InArgument>
+              <InArgument x:TypeArguments="ui:UiElement" x:Key="in_TargetElement">[in_ViewerElement]</InArgument>
+            </ui:InvokeWorkflowFile.Arguments>
+          </ui:InvokeWorkflowFile>
+          <ui:LogMessage DisplayName="PDF 후보 로그" sap2010:WorkflowViewState.IdRef="Log_PdfCandidates_1" Level="Trace" Message="[&quot;PDF Candidate Result | Method=&quot; &amp; If(collectionMethod, String.Empty) &amp; &quot; | Count=&quot; &amp; candidateCount.ToString() &amp; &quot; | Json=&quot; &amp; If(candidateJson, String.Empty)]" />
+          <If Condition="[Not collectSuccess OrElse candidateCount &lt;= 0]" DisplayName="후보 수집 검증" sap2010:WorkflowViewState.IdRef="If_CollectPdf_1">
+            <If.Then>
+              <Throw Exception="[New Exception(&quot;PDF Viewer 후보 수집 실패: &quot; &amp; stepError)]" sap2010:WorkflowViewState.IdRef="Throw_CollectPdf_1" />
+            </If.Then>
+          </If>
+          <ui:InvokeCode ContinueOnError="{x:Null}" DisplayName="Chrome 다운로드 UI 후보 제외" sap2010:WorkflowViewState.IdRef="InvokeCode_ExcludeChromeDownloadUi_1" Code="Dim root = Newtonsoft.Json.Linq.JObject.Parse(candidateJsonText)&#xA;Dim source = TryCast(root(&quot;candidates&quot;), Newtonsoft.Json.Linq.JArray)&#xA;If source Is Nothing Then Throw New Exception(&quot;PDF candidates 배열이 없습니다.&quot;)&#xA;&#xA;Dim cleaned As New Newtonsoft.Json.Linq.JArray()&#xA;For Each token As Newtonsoft.Json.Linq.JToken In source&#xA;    Dim nameHint As String = System.Convert.ToString(token(&quot;name_hint&quot;)).Trim().ToLowerInvariant()&#xA;    Dim itemText As String = System.Convert.ToString(token(&quot;text&quot;)).Trim().ToLowerInvariant()&#xA;    Dim ariaLabel As String = System.Convert.ToString(token(&quot;aria_label&quot;)).Trim().ToLowerInvariant()&#xA;    Dim combinedName As String = nameHint &amp; &quot; &quot; &amp; itemText &amp; &quot; &quot; &amp; ariaLabel&#xA;&#xA;    Dim isChromeDownloadUi As Boolean =&#xA;        combinedName.Contains(&quot;새 다운로드 사용 가능&quot;) OrElse&#xA;        combinedName.Contains(&quot;recent downloads&quot;) OrElse&#xA;        combinedName.Contains(&quot;최근 다운로드 기록&quot;) OrElse&#xA;        combinedName.Contains(&quot;downloads bubble&quot;)&#xA;&#xA;    If Not isChromeDownloadUi Then cleaned.Add(token.DeepClone())&#xA;Next&#xA;&#xA;root(&quot;candidates&quot;) = cleaned&#xA;root(&quot;candidate_count&quot;) = cleaned.Count&#xA;candidateJsonText = root.ToString(Newtonsoft.Json.Formatting.None)&#xA;candidateCountValue = cleaned.Count">
+            <ui:InvokeCode.Arguments>
+              <InOutArgument x:TypeArguments="x:String" x:Key="candidateJsonText">[candidateJson]</InOutArgument>
+              <InOutArgument x:TypeArguments="x:Int32" x:Key="candidateCountValue">[candidateCount]</InOutArgument>
+            </ui:InvokeCode.Arguments>
+          </ui:InvokeCode>
+          <ui:InvokeCode ContinueOnError="{x:Null}" DisplayName="PDF 뷰어 툴바 다운로드 구조 선택" sap2010:WorkflowViewState.IdRef="InvokeCode_AnchorPdfDownloadToFullscreen_1" Code="Dim root = Newtonsoft.Json.Linq.JObject.Parse(candidateJsonText)&#xA;Dim source = TryCast(root(&quot;candidates&quot;), Newtonsoft.Json.Linq.JArray)&#xA;If source Is Nothing Then Throw New Exception(&quot;PDF candidates 배열이 없습니다.&quot;)&#xA;&#xA;Dim toolbarAnchorIds As New System.Collections.Generic.List(Of Integer)()&#xA;Dim downloadTokens As New System.Collections.Generic.List(Of Newtonsoft.Json.Linq.JToken)()&#xA;&#xA;For Each token As Newtonsoft.Json.Linq.JToken In source&#xA;    Dim elementId As String = System.Convert.ToString(token(&quot;element_id&quot;)).Trim()&#xA;    Dim combined As String = (System.Convert.ToString(token(&quot;text&quot;)) &amp; &quot; &quot; &amp; System.Convert.ToString(token(&quot;name_hint&quot;)) &amp; &quot; &quot; &amp; System.Convert.ToString(token(&quot;aria_label&quot;))).Trim().ToLowerInvariant()&#xA;    Dim numberValue As Integer = -1&#xA;    If elementId.Length &gt; 1 Then Integer.TryParse(elementId.Substring(1), numberValue)&#xA;&#xA;    Dim isToolbarAnchor As Boolean = combined.Replace(&quot; &quot;, String.Empty).Contains(&quot;전체화면&quot;) OrElse combined.Contains(&quot;fullscreen&quot;) OrElse combined.Contains(&quot;full screen&quot;) OrElse combined.Contains(&quot;인쇄&quot;) OrElse combined.Contains(&quot;print&quot;) OrElse combined.Contains(&quot;확대&quot;) OrElse combined.Contains(&quot;zoom&quot;)&#xA;    Dim isDownload As Boolean = combined.Contains(&quot;다운로드&quot;) OrElse combined.Contains(&quot;download&quot;)&#xA;&#xA;    If isToolbarAnchor AndAlso numberValue &gt;= 0 Then toolbarAnchorIds.Add(numberValue)&#xA;    If isDownload AndAlso numberValue &gt;= 0 Then downloadTokens.Add(token)&#xA;Next&#xA;&#xA;If downloadTokens.Count = 0 Then Throw New Exception(&quot;PDF 다운로드 후보가 없습니다.&quot;)&#xA;&#xA;Dim selectedToken As Newtonsoft.Json.Linq.JToken = Nothing&#xA;Dim selectedDistance As Integer = Integer.MaxValue&#xA;For Each downloadToken As Newtonsoft.Json.Linq.JToken In downloadTokens&#xA;    Dim downloadId As String = System.Convert.ToString(downloadToken(&quot;element_id&quot;)).Trim()&#xA;    Dim downloadNumber As Integer = -1&#xA;    If downloadId.Length &gt; 1 Then Integer.TryParse(downloadId.Substring(1), downloadNumber)&#xA;    For Each anchorNumber As Integer In toolbarAnchorIds&#xA;        Dim distance As Integer = System.Math.Abs(downloadNumber - anchorNumber)&#xA;        If distance &gt; 0 AndAlso distance &lt;= 10 AndAlso distance &lt; selectedDistance Then&#xA;            selectedDistance = distance&#xA;            selectedToken = downloadToken&#xA;        End If&#xA;    Next&#xA;Next&#xA;&#xA;' Chrome 상단 다운로드 버튼은 접근성 트리 앞부분에, PDF 뷰어 내부 툴바는 뒤쪽에 수집됩니다.&#xA;' 앵커 명칭이 누락된 뷰어에서는 가장 뒤쪽 다운로드 후보를 안전 보조 규칙으로 사용합니다.&#xA;If selectedToken Is Nothing Then&#xA;    Dim highestId As Integer = -1&#xA;    For Each downloadToken As Newtonsoft.Json.Linq.JToken In downloadTokens&#xA;        Dim downloadId As String = System.Convert.ToString(downloadToken(&quot;element_id&quot;)).Trim()&#xA;        Dim downloadNumber As Integer = -1&#xA;        If downloadId.Length &gt; 1 Then Integer.TryParse(downloadId.Substring(1), downloadNumber)&#xA;        If downloadNumber &gt; highestId Then&#xA;            highestId = downloadNumber&#xA;            selectedToken = downloadToken&#xA;        End If&#xA;    Next&#xA;    selectedDistance = -1&#xA;End If&#xA;&#xA;If selectedToken Is Nothing Then Throw New Exception(&quot;PDF 뷰어 내부 다운로드 버튼을 결정하지 못했습니다.&quot;)&#xA;&#xA;Dim anchored As New Newtonsoft.Json.Linq.JArray()&#xA;anchored.Add(selectedToken.DeepClone())&#xA;root(&quot;candidates&quot;) = anchored&#xA;root(&quot;candidate_count&quot;) = 1&#xA;root(&quot;selection_rule&quot;) = If(selectedDistance &gt;= 0, &quot;PDF_TOOLBAR_NEIGHBOR_DOWNLOAD&quot;, &quot;PDF_VIEWER_TREE_LAST_DOWNLOAD&quot;)&#xA;root(&quot;anchor_distance&quot;) = selectedDistance&#xA;candidateJsonText = root.ToString(Newtonsoft.Json.Formatting.None)&#xA;candidateCountValue = 1">
+            <ui:InvokeCode.Arguments>
+              <InOutArgument x:TypeArguments="x:String" x:Key="candidateJsonText">[candidateJson]</InOutArgument>
+              <InOutArgument x:TypeArguments="x:Int32" x:Key="candidateCountValue">[candidateCount]</InOutArgument>
+            </ui:InvokeCode.Arguments>
+          </ui:InvokeCode>
+          <ui:InvokeCode ContinueOnError="{x:Null}" DisplayName="다운로드 후보 화면 위치 정렬" sap2010:WorkflowViewState.IdRef="InvokeCode_OrderDownloadByScreenPosition_1" Code="Dim root = Newtonsoft.Json.Linq.JObject.Parse(candidateJsonText)&#xA;Dim source = TryCast(root(&quot;candidates&quot;), Newtonsoft.Json.Linq.JArray)&#xA;If source Is Nothing Then Throw New Exception(&quot;PDF candidates 배열이 없습니다.&quot;)&#xA;&#xA;Dim bestToken As Newtonsoft.Json.Linq.JToken = Nothing&#xA;Dim bestY As Integer = Integer.MinValue&#xA;&#xA;For Each token As Newtonsoft.Json.Linq.JToken In source&#xA;    Dim elementId As String = System.Convert.ToString(token(&quot;element_id&quot;)).Trim()&#xA;    Dim nameHint As String = System.Convert.ToString(token(&quot;name_hint&quot;)).Trim().ToLowerInvariant()&#xA;    Dim ariaLabel As String = System.Convert.ToString(token(&quot;aria_label&quot;)).Trim().ToLowerInvariant()&#xA;    Dim itemText As String = System.Convert.ToString(token(&quot;text&quot;)).Trim().ToLowerInvariant()&#xA;    Dim isDownload As Boolean = nameHint = &quot;다운로드&quot; OrElse nameHint = &quot;download&quot; OrElse ariaLabel = &quot;다운로드&quot; OrElse ariaLabel = &quot;download&quot; OrElse itemText = &quot;다운로드&quot; OrElse itemText = &quot;download&quot;&#xA;    If Not isDownload Then Continue For&#xA;&#xA;    Dim rectText As String = String.Empty&#xA;    If elementMapValue IsNot Nothing AndAlso elementMapValue.ContainsKey(elementId) Then&#xA;        Dim mappedElement As UiPath.Core.UiElement = elementMapValue(elementId)&#xA;        For Each attributeName As String In New String() {&quot;screenrect&quot;, &quot;boundingrectangle&quot;, &quot;position&quot;, &quot;rectangle&quot;}&#xA;            Try&#xA;                Dim rawValue As Object = mappedElement.Get(attributeName)&#xA;                If rawValue IsNot Nothing AndAlso Not String.IsNullOrWhiteSpace(rawValue.ToString()) Then&#xA;                    rectText = rawValue.ToString()&#xA;                    Exit For&#xA;                End If&#xA;            Catch&#xA;            End Try&#xA;        Next&#xA;    End If&#xA;&#xA;    token(&quot;screen_rect_hint&quot;) = rectText&#xA;    Dim matches As System.Text.RegularExpressions.MatchCollection = System.Text.RegularExpressions.Regex.Matches(rectText, &quot;-?[0-9]+&quot;)&#xA;    If matches.Count &gt;= 2 Then&#xA;        Dim screenY As Integer = 0&#xA;        If Integer.TryParse(matches(1).Value, screenY) Then&#xA;            token(&quot;screen_y_hint&quot;) = screenY&#xA;            If screenY &gt; bestY Then&#xA;                bestY = screenY&#xA;                bestToken = token&#xA;            End If&#xA;        End If&#xA;    End If&#xA;Next&#xA;&#xA;If bestToken IsNot Nothing Then&#xA;    Dim ordered As New Newtonsoft.Json.Linq.JArray()&#xA;    ordered.Add(bestToken.DeepClone())&#xA;    For Each token As Newtonsoft.Json.Linq.JToken In source&#xA;        If Not Object.ReferenceEquals(token, bestToken) Then ordered.Add(token.DeepClone())&#xA;    Next&#xA;    root(&quot;candidates&quot;) = ordered&#xA;    candidateJsonText = root.ToString(Newtonsoft.Json.Formatting.None)&#xA;End If">
+            <ui:InvokeCode.Arguments>
+              <InOutArgument x:TypeArguments="x:String" x:Key="candidateJsonText">[candidateJson]</InOutArgument>
+              <InArgument x:TypeArguments="scg:Dictionary(x:String, ui:UiElement)" x:Key="elementMapValue">[elementMap]</InArgument>
+            </ui:InvokeCode.Arguments>
+          </ui:InvokeCode>
+          <ui:InvokeCode ContinueOnError="{x:Null}" DisplayName="PDF 툴바 다운로드 버튼 우선" sap2010:WorkflowViewState.IdRef="InvokeCode_PreferPdfToolbarDownload_1" Code="Dim root = Newtonsoft.Json.Linq.JObject.Parse(candidateJsonText)&#xA;Dim source = TryCast(root(&quot;candidates&quot;), Newtonsoft.Json.Linq.JArray)&#xA;If source Is Nothing Then Throw New Exception(&quot;PDF candidates 배열이 없습니다.&quot;)&#xA;&#xA;Dim exactDownloads As New Newtonsoft.Json.Linq.JArray()&#xA;For Each token As Newtonsoft.Json.Linq.JToken In source&#xA;    Dim role As String = System.Convert.ToString(token(&quot;role&quot;)).Trim().ToLowerInvariant()&#xA;    Dim nameHint As String = System.Convert.ToString(token(&quot;name_hint&quot;)).Trim().ToLowerInvariant()&#xA;    Dim ariaLabel As String = System.Convert.ToString(token(&quot;aria_label&quot;)).Trim().ToLowerInvariant()&#xA;    Dim itemText As String = System.Convert.ToString(token(&quot;text&quot;)).Trim().ToLowerInvariant()&#xA;    Dim exactName As Boolean = nameHint = &quot;다운로드&quot; OrElse nameHint = &quot;download&quot; OrElse ariaLabel = &quot;다운로드&quot; OrElse ariaLabel = &quot;download&quot; OrElse itemText = &quot;다운로드&quot; OrElse itemText = &quot;download&quot;&#xA;    Dim isButton As Boolean = role = &quot;단추&quot; OrElse role = &quot;button&quot; OrElse role.Contains(&quot;push button&quot;)&#xA;    If exactName AndAlso isButton Then exactDownloads.Add(token.DeepClone())&#xA;Next&#xA;&#xA;' Chrome UI보다 PDF 문서 영역의 툴바 버튼이 접근성 트리에서 먼저 수집됩니다.&#xA;' 동일 이름이 여러 개면 첫 번째만 남겨 주소창 옆 Chrome 다운로드 버튼을 배제합니다.&#xA;If exactDownloads.Count &gt; 0 Then&#xA;    While exactDownloads.Count &gt; 1&#xA;        exactDownloads.RemoveAt(exactDownloads.Count - 1)&#xA;    End While&#xA;    root(&quot;candidates&quot;) = exactDownloads&#xA;    root(&quot;candidate_count&quot;) = exactDownloads.Count&#xA;    candidateJsonText = root.ToString(Newtonsoft.Json.Formatting.None)&#xA;    candidateCountValue = exactDownloads.Count&#xA;End If">
+            <ui:InvokeCode.Arguments>
+              <InOutArgument x:TypeArguments="x:String" x:Key="candidateJsonText">[candidateJson]</InOutArgument>
+              <InOutArgument x:TypeArguments="x:Int32" x:Key="candidateCountValue">[candidateCount]</InOutArgument>
+            </ui:InvokeCode.Arguments>
+          </ui:InvokeCode>
+          <ui:InvokeCode ContinueOnError="{x:Null}" DisplayName="PDF 다운로드 후보 정제" sap2010:WorkflowViewState.IdRef="InvokeCode_FilterPdfCandidates_1" Code="Dim root = Newtonsoft.Json.Linq.JObject.Parse(in_Json)&#xA;Dim source = TryCast(root(&quot;candidates&quot;), Newtonsoft.Json.Linq.JArray)&#xA;If source Is Nothing Then Throw New Exception(&quot;PDF candidates 배열이 없습니다.&quot;)&#xA;Dim keywordMatches As New Newtonsoft.Json.Linq.JArray()&#xA;Dim pdfViewerMatches As New Newtonsoft.Json.Linq.JArray()&#xA;Dim buttonMatches As New Newtonsoft.Json.Linq.JArray()&#xA;For Each token As Newtonsoft.Json.Linq.JToken In source&#xA;    Dim combined As String = token.ToString(Newtonsoft.Json.Formatting.None).ToLowerInvariant()&#xA;    Dim role As String = System.Convert.ToString(token(&quot;role&quot;)).ToLowerInvariant()&#xA;    Dim itemText As String = System.Convert.ToString(token(&quot;text&quot;)).Trim()&#xA;    Dim nameHint As String = System.Convert.ToString(token(&quot;name_hint&quot;)).ToLowerInvariant()&#xA;    If combined.Contains(&quot;download&quot;) OrElse combined.Contains(&quot;다운로드&quot;) OrElse combined.Contains(&quot;save&quot;) OrElse combined.Contains(&quot;저장&quot;) Then&#xA;        keywordMatches.Add(token.DeepClone())&#xA;        If role = &quot;단추&quot; OrElse (String.IsNullOrWhiteSpace(itemText) AndAlso (nameHint.Contains(&quot;download&quot;) OrElse nameHint.Contains(&quot;다운로드&quot;))) Then pdfViewerMatches.Add(token.DeepClone())&#xA;    ElseIf role.Contains(&quot;push button&quot;) OrElse role = &quot;button&quot; Then&#xA;        buttonMatches.Add(token.DeepClone())&#xA;    End If&#xA;Next&#xA;Dim filtered As Newtonsoft.Json.Linq.JArray&#xA;If pdfViewerMatches.Count &gt; 0 Then&#xA;    filtered = pdfViewerMatches&#xA;    While filtered.Count &gt; 1&#xA;        filtered.RemoveAt(0)&#xA;    End While&#xA;ElseIf keywordMatches.Count &gt; 0 Then&#xA;    filtered = keywordMatches&#xA;    While filtered.Count &gt; 40&#xA;        filtered.RemoveAt(filtered.Count - 1)&#xA;    End While&#xA;Else&#xA;    filtered = buttonMatches&#xA;    If filtered.Count = 0 Then filtered = source&#xA;    While filtered.Count &gt; 60&#xA;        filtered.RemoveAt(0)&#xA;    End While&#xA;End If&#xA;root(&quot;candidates&quot;) = filtered&#xA;root(&quot;candidate_count&quot;) = filtered.Count&#xA;out_Json = root.ToString(Newtonsoft.Json.Formatting.None)&#xA;out_Count = filtered.Count">
+            <ui:InvokeCode.Arguments>
+              <InArgument x:TypeArguments="x:String" x:Key="in_Json">[candidateJson]</InArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_Json">[candidateJson]</OutArgument>
+              <OutArgument x:TypeArguments="x:Int32" x:Key="out_Count">[candidateCount]</OutArgument>
+            </ui:InvokeCode.Arguments>
+          </ui:InvokeCode>
+          <ui:LogMessage DisplayName="정제된 PDF 후보 로그 V3" sap2010:WorkflowViewState.IdRef="Log_FilteredPdfCandidates_1" Level="Trace" Message="[&quot;Filtered PDF Candidate V3 | Count=&quot; &amp; candidateCount.ToString() &amp; &quot; | Json=&quot; &amp; If(candidateJson, String.Empty)]" />
+          <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="Qwen 다운로드 버튼 선택" sap2010:WorkflowViewState.IdRef="Invoke_SelectPdf_1" UnSafe="False" WorkflowFileName="Select_UI_Element.xaml">
+            <ui:InvokeWorkflowFile.Arguments>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_ErrorMessage">[stepError]</OutArgument>
+              <OutArgument x:TypeArguments="x:Boolean" x:Key="out_SelectSuccess">[selectSuccess]</OutArgument>
+              <OutArgument x:TypeArguments="x:Int32" x:Key="out_LlmStatusCode">[llmStatusCode]</OutArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_LlmRawResponse">[llmRawResponse]</OutArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_LlmContent">[llmContent]</OutArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_SelectedElementId">[out_SelectedElementId]</OutArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_ResolvedOperation">[resolvedOperation]</OutArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_SelectedValue">[selectedValue]</OutArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_LlmApiKey">[in_LlmApiKey]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_LlmModel">[in_LlmModel]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_LlmApiBase">[in_LlmApiBase]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_ValueKind">NONE</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_InputText">[String.Empty]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_Operation">CLICK</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_Objective">PDF 문서 뷰어에서 실제 파일을 저장하는 다운로드 버튼을 선택한다. accessible name 또는 텍스트가 Download, 다운로드, Save이거나 id/title에 download가 포함된 후보를 우선 선택한다. Print, 인쇄, 확대, 축소, 페이지 이동 버튼은 선택하지 않는다.</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_ActionKey">PDF_DOWNLOAD_BUTTON</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_CandidateJson">[candidateJson]</InArgument>
+            </ui:InvokeWorkflowFile.Arguments>
+          </ui:InvokeWorkflowFile>
+          <ui:LogMessage DisplayName="PDF LLM 선택 로그" sap2010:WorkflowViewState.IdRef="Log_PdfLlmResult_1" Level="Trace" Message="[&quot;PDF LLM Result | Success=&quot; &amp; selectSuccess.ToString() &amp; &quot; | Selected=&quot; &amp; If(out_SelectedElementId, String.Empty) &amp; &quot; | Content=&quot; &amp; If(llmContent, String.Empty) &amp; &quot; | Error=&quot; &amp; If(stepError, String.Empty)]" />
+          <If Condition="[Not selectSuccess OrElse String.IsNullOrWhiteSpace(out_SelectedElementId)]" DisplayName="LLM 선택 검증" sap2010:WorkflowViewState.IdRef="If_SelectPdf_1">
+            <If.Then>
+              <Throw Exception="[New Exception(&quot;LLM 다운로드 버튼 선택 실패: &quot; &amp; stepError)]" sap2010:WorkflowViewState.IdRef="Throw_SelectPdf_1" />
+            </If.Then>
+          </If>
+          <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="선택 버튼 UiElement 해석" sap2010:WorkflowViewState.IdRef="Invoke_ResolvePdf_1" UnSafe="False" WorkflowFileName="Resolve_Selected_Element.xaml">
+            <ui:InvokeWorkflowFile.Arguments>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_ErrorMessage">[stepError]</OutArgument>
+              <OutArgument x:TypeArguments="x:Boolean" x:Key="out_ResolveSuccess">[resolveSuccess]</OutArgument>
+              <OutArgument x:TypeArguments="ui:UiElement" x:Key="out_SelectedUiElement">[selectedUiElement]</OutArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_CollectionMethod">[collectionMethod]</InArgument>
+              <InArgument x:TypeArguments="ui:UiElement" x:Key="in_TargetElement">[in_ViewerElement]</InArgument>
+              <InArgument x:TypeArguments="scg:Dictionary(x:String, ui:UiElement)" x:Key="in_ElementMap">[elementMap]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_SelectedElementId">[out_SelectedElementId]</InArgument>
+            </ui:InvokeWorkflowFile.Arguments>
+          </ui:InvokeWorkflowFile>
+          <If Condition="[Not resolveSuccess OrElse selectedUiElement Is Nothing]" DisplayName="버튼 해석 검증" sap2010:WorkflowViewState.IdRef="If_ResolvePdf_1">
+            <If.Then>
+              <Throw Exception="[New Exception(&quot;다운로드 버튼 UiElement 해석 실패: &quot; &amp; stepError)]" sap2010:WorkflowViewState.IdRef="Throw_ResolvePdf_1" />
+            </If.Then>
+          </If>
+          <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="UiPath 클릭 및 다운로드 검증" sap2010:WorkflowViewState.IdRef="Invoke_DownloadPdf_1" UnSafe="False" WorkflowFileName="Download_File.xaml">
+            <ui:InvokeWorkflowFile.Arguments>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_ErrorMessage">[stepError]</OutArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_DownloadMode">[downloadMode]</OutArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_DownloadedFilePath">[out_DownloadedFilePath]</OutArgument>
+              <OutArgument x:TypeArguments="x:Boolean" x:Key="out_DownloadSuccess">[out_DownloadSuccess]</OutArgument>
+              <InArgument x:TypeArguments="x:Int32" x:Key="in_TimeoutSeconds">[If(in_TimeoutSeconds &gt; 0, in_TimeoutSeconds, 60)]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_DownloadFolder">[in_DownloadFolder]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_ExpectedFileName">[in_ExpectedFileName]</InArgument>
+              <InArgument x:TypeArguments="ui:UiElement" x:Key="in_BrowserElement">[in_ViewerElement]</InArgument>
+              <InArgument x:TypeArguments="ui:UiElement" x:Key="in_SelectedUiElement">[selectedUiElement]</InArgument>
+            </ui:InvokeWorkflowFile.Arguments>
+          </ui:InvokeWorkflowFile>
+          <If Condition="[Not out_DownloadSuccess]" DisplayName="다운로드 결과 검증" sap2010:WorkflowViewState.IdRef="If_DownloadPdf_1">
+            <If.Then>
+              <Throw Exception="[New Exception(&quot;PDF 파일 다운로드 또는 파일 생성 검증 실패: &quot; &amp; stepError)]" sap2010:WorkflowViewState.IdRef="Throw_DownloadPdf_1" />
+            </If.Then>
+          </If>
+          <ui:LogMessage DisplayName="PDF 다운로드 성공 로그" sap2010:WorkflowViewState.IdRef="Log_PdfDownload_1" Level="Info" Message="[&quot;PDF 다운로드 성공 | element_id=&quot; &amp; out_SelectedElementId &amp; &quot; | file=&quot; &amp; out_DownloadedFilePath]" />
+        </Sequence>
+      </TryCatch.Try>
+      <TryCatch.Catches>
+        <Catch x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="Catch_PdfDownload_1">
+          <ActivityAction x:TypeArguments="s:Exception">
+            <ActivityAction.Argument>
+              <DelegateInArgument x:TypeArguments="s:Exception" Name="exception" />
+            </ActivityAction.Argument>
+            <Sequence DisplayName="PDF 다운로드 실패 처리" sap2010:WorkflowViewState.IdRef="Sequence_PdfDownloadCatch_1">
+              <Assign sap2010:WorkflowViewState.IdRef="Assign_PdfError_1">
+                <Assign.To>
+                  <OutArgument x:TypeArguments="x:String">[out_ErrorMessage]</OutArgument>
+                </Assign.To>
+                <Assign.Value>
+                  <InArgument x:TypeArguments="x:String">[exception.Message]</InArgument>
+                </Assign.Value>
+              </Assign>
+              <Assign sap2010:WorkflowViewState.IdRef="Assign_PdfFail_1">
+                <Assign.To>
+                  <OutArgument x:TypeArguments="x:Boolean">[out_DownloadSuccess]</OutArgument>
+                </Assign.To>
+                <Assign.Value>
+                  <InArgument x:TypeArguments="x:Boolean">False</InArgument>
+                </Assign.Value>
+              </Assign>
+              <ui:LogMessage DisplayName="PDF 다운로드 실패 로그" sap2010:WorkflowViewState.IdRef="Log_PdfError_1" Level="Error" Message="[out_ErrorMessage]" />
+            </Sequence>
+          </ActivityAction>
+        </Catch>
+      </TryCatch.Catches>
+    </TryCatch>
+  </Sequence>
+</Activity>
