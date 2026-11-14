@@ -42,8 +42,8 @@
           },
           "in_LlmApiBase": {
             "type": "string",
-            "x-default-expression": "\"https://3ewe5z22ue1gso-8000.proxy.runpod.net/v1/chat/completions\"",
-            "default": "https://3ewe5z22ue1gso-8000.proxy.runpod.net/v1/chat/completions"
+            "x-default-expression": "\"[사내 LLM 서버 주소 - 공개불가]\"",
+            "default": "[사내 LLM 서버 주소 - 공개불가]"
           }
         },
         "required": []

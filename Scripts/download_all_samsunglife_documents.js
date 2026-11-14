@@ -2,7 +2,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const { chromium } = require("C:/Users/FAS/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright");
+const { chromium } = require("[회사 PC 사용자 폴더 경로 - 공개불가]/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright");
 
 function arg(name, fallback = "") {
   const prefix = `--${name}=`;
@@ -120,7 +120,7 @@ async function main() {
   const maxDocuments = Number(arg("max-documents", "0"));
   const dryRun = arg("dry-run", "false").toLowerCase() === "true";
   const useLlm = arg("use-llm", "true").toLowerCase() !== "false";
-  const llmEndpoint = arg("llm-endpoint", "https://3ewe5z22ue1gso-8000.proxy.runpod.net/v1/chat/completions");
+  const llmEndpoint = arg("llm-endpoint", "[사내 LLM 서버 주소 - 공개불가]");
   const llmModel = arg("llm-model", "Qwen/Qwen3.5-27B");
   fs.mkdirSync(outputDir, { recursive: true });
 

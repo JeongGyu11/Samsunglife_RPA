@@ -82,7 +82,7 @@
       "DisplayName": "in_LlmApiBase",
       "Category": null,
       "Tooltip": null,
-      "Placeholder": "https://3ewe5z22ue1gso-8000.proxy.runpod.net/",
+      "Placeholder": "[사내 LLM 서버 주소 - 공개불가]",
       "Widget": null,
       "IsRequired": false,
       "IsPrincipal": true,
